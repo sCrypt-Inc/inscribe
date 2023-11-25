@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import NFT from './nft';
+import BSV20 from "./bsv20";
+
+function Home() {
+    const navigate = useNavigate()
+    return (
+        <div className="App">
+            <header className="App-header">
+                <h1>1Sat Ordinals Demo</h1>
+                <button onClick={() => navigate('/nft')}>NFT</button>
+                <br />
+                <button onClick={() => navigate('/bsv20')}>BSV20</button>
+            </header>
+        </div>
+    )
+}
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path='/' element={<Home />} />
+                <Route path="/nft" element={<NFT />} />
+                <Route path="/bsv20" element={<BSV20 />} />
+            </Routes>
+        </BrowserRouter>
+    )
 }
 
 export default App;

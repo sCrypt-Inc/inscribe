@@ -25,3 +25,4 @@ yarn-error.log*
 .env
 /artifacts
 scrypt.index.json
+tsconfig-scryptTs.json
