@@ -8,6 +8,14 @@ function BSV20() {
     const [_ordiAddress, setOrdiAddress] = useState<bsv.Address | undefined>(undefined)
     const [_network, setNetwork] = useState<bsv.Networks.Network | undefined>(undefined)
 
+    const networkStr = () => {
+        return _network === undefined
+            ? 'not connected'
+            : _network === bsv.Networks.mainnet
+                ? 'mainnet'
+                : 'testnet'
+    }
+
     const _signer = useRef<PandaSigner>(new PandaSigner(new OrdiProvider()))
 
     const connected = () => {
@@ -56,7 +64,7 @@ function BSV20() {
             <header className="App-header">
                 <h1>BSV20</h1>
 
-                <label>Network: {_network?.toString() || 'not connected'}</label>
+                <label>Network: {networkStr()}</label>
                 <label>Pay Address: {_payAddress?.toString() || 'not connected'}</label>
                 <label>Ordi Address: {_ordiAddress?.toString() || 'not connected'}</label>
 
