@@ -3,6 +3,7 @@ import './App.css';
 import { OrdiNFTP2PKH, OrdiProvider } from 'scrypt-ord';
 import { Addr, bsv, PandaSigner } from 'scrypt-ts';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
+import { Container, Box, Typography, Button, TextField, Grid, Link } from '@mui/material';
 
 function NFT() {
 
@@ -57,19 +58,32 @@ function NFT() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>NFT</h1>
-        <label>Network: {networkStr()}</label>
-        <label>Pay Address: {_payAddress?.toString() || 'not connected'}</label>
-        <label>Ordi Address: {_ordiAddress?.toString() || 'not connected'}</label>
-
-        {
-          connected()
-            ? ''
-            : <button onClick={connect}>Connect</button>
-        }
-
+    <Container maxWidth="md">
+      <Box sx={{ my: 4 }}>
+        <Box sx={{ pb: 4 }}>
+          <Link href="/" > &lt;- Back to Home </Link>
+        </Box>
+        <Typography variant="h4" component="h1" gutterBottom align="center">
+          Image NFT Inscription
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+        <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>
+          {connected() ? 'Wallet Connected' : 'Connect Wallet'}
+        </Button>
+      </Box>
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="body1">
+          Network: {networkStr()}
+        </Typography>
+        <Typography variant="body1">
+          Pay Address: {_payAddress?.toString() || 'Not connected'}
+        </Typography>
+        <Typography variant="body1">
+          Ordi Address: {_ordiAddress?.toString() || 'Not connected'}
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 3 }}>
         {
           !connected()
             ? ''
@@ -77,32 +91,37 @@ function NFT() {
             <ImageUploading value={images} onChange={onChange} dataURLKey="data_url" >
               {
                 ({ imageList, onImageUpload, onImageRemoveAll, isDragging, dragProps }) => (
-                  <div>
-                    <button style={isDragging ? { color: 'red' } : undefined} onClick={onImageUpload} {...dragProps} >
-                      Select an image
-                    </button>
-                    &nbsp;
-                    <button onClick={onImageRemoveAll}>Remove selected</button>
+                  <>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                      <Button variant="contained" color="primary" disabled={!connected()} onClick={onImageUpload}>
+                        Select an image
+                      </Button>
+                      <Button variant='outlined' color="secondary" onClick={onImageRemoveAll}>
+                        Remove selected
+                      </Button>
+                    </Box>
                     {
                       imageList.map(
                         (image, index) => (
-                          <div key={index} className="image-item">
-                            <img src={image['data_url']} alt="" width="100" />
-                            <div className="image-item__btn-wrapper">
-                              <button onClick={() => inscribe()}>Inscribe</button>
-                            </div>
-                          </div>
+                          <Box sx={{ position: 'relative', width: '100%', mt: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }} key={index}>
+                            <Box sx={{ position: 'relative'}}>
+                              <img src={image['data_url']} alt="" width='100%'/>
+                              <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
+                            </Box>
+                            <Button variant="contained" color="primary" sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1 }} disabled={!connected()} onClick={inscribe}>
+                              Inscribe It!
+                            </Button>
+                          </Box>
                         )
                       )
                     }
-                  </div>
+                  </>
                 )
               }
             </ImageUploading>
         }
-
-      </header>
-    </div>
+      </Box>
+    </Container>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Container, Box, Typography, Button, TextField, Link } from '@mui/material';
 import { BSV20V2P2PKH, OrdiProvider } from "scrypt-ord";
 import { Addr, PandaSigner, bsv, toByteString } from "scrypt-ts";
 
@@ -60,41 +61,40 @@ function BSV20() {
     }
 
     return (
-        <div className="App">
-            <header className="App-header">
-                <h1>BSV20</h1>
-
-                <label>Network: {networkStr()}</label>
-                <label>Pay Address: {_payAddress?.toString() || 'not connected'}</label>
-                <label>Ordi Address: {_ordiAddress?.toString() || 'not connected'}</label>
-
-                {
-                    connected()
-                        ? ''
-                        : <button onClick={connect}>Connect</button>
-                }
-
-                {
-                    !connected()
-                        ? ''
-                        : (
-                            <div>
-                                <label>Symbol:</label>
-                                <input type='text' value={_symbol?.toString() || ''} onChange={symbolOnChange} />
-                                <br />
-                                <label>Amount:</label>
-                                <input type='number' value={_amount?.toString() || ''} onChange={amountOnChange} />
-                                <br />
-                                <label>Decimal:</label>
-                                <input type='number' value={_decimal?.toString() || ''} onChange={decimalOnChange} />
-                                <br />
-                                <button onClick={mint}>Mint</button>
-                            </div>
-                        )
-                }
-
-            </header>
-        </div>
+        <Container maxWidth="md">
+            <Box sx={{ my: 4 }}>
+                <Box sx={{ pb: 4 }}>
+                    <Link href="/" > &lt;- Back to Home </Link>
+                </Box>
+                <Typography variant="h4" component="h1" gutterBottom align="center">
+                    BSV20 Inscription
+                </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>
+                    {connected() ? 'Wallet Connected' : 'Connect Wallet'}
+                </Button>
+            </Box>
+            <Box sx={{ mt: 3 }}>
+                <Typography variant="body1">
+                    Network: {networkStr()}
+                </Typography>
+                <Typography variant="body1">
+                    Pay Address: {_payAddress?.toString() || 'Not connected'}
+                </Typography>
+                <Typography variant="body1">
+                    Ordi Address: {_ordiAddress?.toString() || 'Not connected'}
+                </Typography>
+            </Box>
+            <Box sx={{ mt: 3 }}>
+                <TextField label="Symbol" variant="outlined" fullWidth onChange={symbolOnChange} />
+                <TextField label="Amount" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={amountOnChange} />
+                <TextField label="Decimal" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={decimalOnChange} />
+                <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected()} onClick={mint}>
+                    Mint It!
+                </Button>
+            </Box>
+        </Container>
     )
 }
 
