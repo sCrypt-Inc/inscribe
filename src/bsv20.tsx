@@ -1,39 +1,16 @@
-import { useRef, useState } from "react";
-import { Container, Box, Typography, Button, TextField, Link } from '@mui/material';
-import { BSV20V2P2PKH, OrdiProvider } from "scrypt-ord";
-import { Addr, PandaSigner, bsv, toByteString } from "scrypt-ts";
+import { useState } from "react";
+import { Container, Box, Typography, Button, TextField } from '@mui/material';
+import { BSV20V2P2PKH } from "scrypt-ord";
+import { Addr, PandaSigner, toByteString } from "scrypt-ts";
+import { networkStr } from "./App";
+import { Link, Navigate } from "react-router-dom";
 
-function BSV20() {
+function BSV20(props) {
 
-    const [_payAddress, setPayAddress] = useState<bsv.Address | undefined>(undefined)
-    const [_ordiAddress, setOrdiAddress] = useState<bsv.Address | undefined>(undefined)
-    const [_network, setNetwork] = useState<bsv.Networks.Network | undefined>(undefined)
-
-    const networkStr = () => {
-        return _network === undefined
-            ? 'not connected'
-            : _network === bsv.Networks.mainnet
-                ? 'mainnet'
-                : 'testnet'
-    }
-
-    const _signer = useRef<PandaSigner>(new PandaSigner(new OrdiProvider()))
+    const { _payAddress, _ordiAddress, _network, _signer } = props
 
     const connected = () => {
         return _network !== undefined && _payAddress !== undefined && _ordiAddress !== undefined
-    }
-
-    const connect = async () => {
-        const signer = _signer.current as PandaSigner
-        const { isAuthenticated, error } = await signer.requestAuth()
-        if (!isAuthenticated) {
-            throw new Error(`Unauthenticated: ${error}`)
-        }
-        setPayAddress(await signer.getDefaultAddress())
-        setOrdiAddress(await signer.getOrdAddress())
-        const network = await signer.getNetwork()
-        setNetwork(network)
-        await signer.connect(new OrdiProvider(network))
     }
 
     const [_symbol, setSymbol] = useState<string | undefined>(undefined)
@@ -41,59 +18,82 @@ function BSV20() {
     const [_decimal, setDecimal] = useState<bigint | undefined>(undefined)
 
     const symbolOnChange = (e) => { setSymbol(e.target.value) }
-    const amountOnChange = (e) => { setAmount(BigInt(e.target.value)) }
-    const decimalOnChange = (e) => { setDecimal(BigInt(e.target.value)) }
+
+    const amountOnChange = (e) => {
+        if (/^\d+$/.test(e.target.value)) {
+            setAmount(BigInt(e.target.value))
+        } else {
+            setAmount(undefined)
+        }
+    }
+
+    const decimalOnChange = (e) => {
+        if (/^\d+$/.test(e.target.value)) {
+            setDecimal(BigInt(e.target.value))
+        } else {
+            setDecimal(undefined)
+        }
+    }
+
+    const validInput = () => {
+        return _symbol !== undefined && _amount !== undefined && _decimal !== undefined
+    }
+
+    const [_result, setResult] = useState<string | undefined>(undefined)
 
     const mint = async () => {
-        if (_symbol !== undefined && _amount !== undefined && _decimal !== undefined) {
-            const signer = _signer.current as PandaSigner
-            const symbol = toByteString(_symbol, true)
-            const instance = new BSV20V2P2PKH(toByteString(''), symbol, _amount, _decimal, Addr(_ordiAddress!.toByteString()))
+        try {
+            const signer = _signer as PandaSigner
+            const symbol = toByteString(_symbol!, true)
+            const instance = new BSV20V2P2PKH(toByteString(''), symbol, _amount!, _decimal!, Addr(_ordiAddress!.toByteString()))
             await instance.connect(signer)
 
             const tokenId = await instance.deployToken()
-            console.log(`Token ID: ${tokenId}`)
+            setResult(`Token ID: ${tokenId}`)
 
             setSymbol(undefined)
             setAmount(undefined)
             setDecimal(undefined)
+        } catch (e) {
+            setResult(`${e}`)
         }
     }
 
     return (
         <Container maxWidth="md">
+            {!connected() && (<Navigate to="/" />)}
             <Box sx={{ my: 4 }}>
                 <Box sx={{ pb: 4 }}>
-                    <Link href="/" > &lt;- Back to Home </Link>
+                    <Link to="/" style={{ color: "#FE9C2F" }}> &lt;- Back to Home </Link>
                 </Box>
                 <Typography variant="h4" component="h1" gutterBottom align="center">
                     BSV20 Inscription
                 </Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>
-                    {connected() ? 'Wallet Connected' : 'Connect Wallet'}
-                </Button>
-            </Box>
             <Box sx={{ mt: 3 }}>
                 <Typography variant="body1">
-                    Network: {networkStr()}
+                    Network: {networkStr(_network)}
                 </Typography>
                 <Typography variant="body1">
-                    Pay Address: {_payAddress?.toString() || 'Not connected'}
+                    Pay Address: {_payAddress?.toString() || 'not connected'}
                 </Typography>
                 <Typography variant="body1">
-                    Ordi Address: {_ordiAddress?.toString() || 'Not connected'}
+                    Ordi Address: {_ordiAddress?.toString() || 'not connected'}
                 </Typography>
             </Box>
             <Box sx={{ mt: 3 }}>
                 <TextField label="Symbol" variant="outlined" fullWidth onChange={symbolOnChange} />
                 <TextField label="Amount" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={amountOnChange} />
                 <TextField label="Decimal" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={decimalOnChange} />
-                <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected()} onClick={mint}>
+                <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validInput()} onClick={mint}>
                     Mint It!
                 </Button>
             </Box>
+            {
+                !_result
+                    ? ''
+                    : (<Box sx={{ mt: 3 }}><Typography variant="body1">{_result}</Typography></Box>)
+            }
         </Container>
     )
 }
