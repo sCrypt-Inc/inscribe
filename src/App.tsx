@@ -224,6 +224,7 @@ function App() {
             const network = await signer.getNetwork()
             setNetwork(network)
             await signer.connect(new OrdiProvider(network))
+            setError(undefined)
         } catch (e) {
             setError(`${e}`)
         }
