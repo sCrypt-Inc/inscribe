@@ -67,18 +67,7 @@ function BSV20(props) {
                     <Link to="/" style={{ color: "#FE9C2F" }}> &lt;- Back to Home </Link>
                 </Box>
                 <Typography variant="h4" component="h1" gutterBottom align="center">
-                    BSV20 Inscription
-                </Typography>
-            </Box>
-            <Box sx={{ mt: 3 }}>
-                <Typography variant="body1">
-                    Network: {networkStr(_network)}
-                </Typography>
-                <Typography variant="body1">
-                    Pay Address: {_payAddress?.toString() || 'not connected'}
-                </Typography>
-                <Typography variant="body1">
-                    Ordi Address: {_ordiAddress?.toString() || 'not connected'}
+                    Inscribe BSV-20
                 </Typography>
             </Box>
             <Box sx={{ mt: 3 }}>
