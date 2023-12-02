@@ -180,12 +180,6 @@ function Home(props) {
                 <Typography variant="body1">
                     Network: {networkStr(_network)}
                 </Typography>
-                <Typography variant="body1">
-                    Pay Address: {_payAddress?.toString() || 'not connected'}
-                </Typography>
-                <Typography variant="body1">
-                    Ordi Address: {_ordiAddress?.toString() || 'not connected'}
-                </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-evenly', mt: 3 }}>
                 <Button variant="contained" color="primary" component={Link} to="/nft" disabled={!connected()}>
