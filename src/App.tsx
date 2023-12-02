@@ -168,7 +168,7 @@ function Home(props) {
         <Container maxWidth="sm" sx={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom align="center">
-                    1Sat Ordinals Inscription Demo
+                    Inscribe on Bitcoin SV
                 </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
@@ -189,10 +189,10 @@ function Home(props) {
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-evenly', mt: 3 }}>
                 <Button variant="contained" color="primary" component={Link} to="/nft" disabled={!connected()}>
-                    Inscribe A NFT
+                    Image
                 </Button>
                 <Button variant="contained" color="primary" component={Link} to="/bsv20" disabled={!connected()}>
-                    Inscribe A BSV20
+                    BSV-20
                 </Button>
             </Box>
             {
