@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ordinals-1sat-demo/static/css/main.f855e6bc.css",
+    "main.js": "/ordinals-1sat-demo/static/js/main.1907b3f4.js",
+    "static/js/787.12600f51.chunk.js": "/ordinals-1sat-demo/static/js/787.12600f51.chunk.js",
+    "index.html": "/ordinals-1sat-demo/index.html",
+    "main.f855e6bc.css.map": "/ordinals-1sat-demo/static/css/main.f855e6bc.css.map",
+    "main.1907b3f4.js.map": "/ordinals-1sat-demo/static/js/main.1907b3f4.js.map",
+    "787.12600f51.chunk.js.map": "/ordinals-1sat-demo/static/js/787.12600f51.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.1907b3f4.js"
+  ]
+}
