@@ -189,6 +189,11 @@ function Home(props) {
                     BSV-20
                 </Button>
             </Box>
+            <Box sx={{ mt: 3 }}>
+                <Typography variant="body1">
+                    <a href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>
+                </Typography>
+            </Box>
             {
                 !_error
                     ? ''
