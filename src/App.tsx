@@ -230,8 +230,8 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path='/' element={<Home _payAddress={_payAddress} _ordiAddress={_ordiAddress} _network={_network} _error={_error} connect={connect} />} />
-                    <Route path="/nft" element={<NFT _payAddress={_payAddress} _ordiAddress={_ordiAddress} _network={_network} _signer={_signer.current} />} />
-                    <Route path="/bsv20" element={<BSV20 _payAddress={_payAddress} _ordiAddress={_ordiAddress} _network={_network} _signer={_signer.current} />} />
+                    <Route path="/nft" element={<NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />} />
+                    <Route path="/bsv20" element={<BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />} />
                 </Routes>
             </BrowserRouter>
         </ThemeProvider>

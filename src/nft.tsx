@@ -4,15 +4,14 @@ import { OrdiNFTP2PKH } from 'scrypt-ord';
 import { Addr, PandaSigner } from 'scrypt-ts';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { Container, Box, Typography, Button } from '@mui/material';
-import { networkStr } from './App';
 import { Navigate, Link } from 'react-router-dom';
 
 function NFT(props) {
 
-  const { _payAddress, _ordiAddress, _network, _signer } = props
+  const { _ordiAddress, _signer } = props
 
   const connected = () => {
-    return _network !== undefined && _payAddress !== undefined && _ordiAddress !== undefined
+    return _ordiAddress !== undefined
   }
 
   const [images, setImages] = useState<ImageListType>([])

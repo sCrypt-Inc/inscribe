@@ -2,15 +2,14 @@ import { useState } from "react";
 import { Container, Box, Typography, Button, TextField } from '@mui/material';
 import { BSV20V2P2PKH } from "scrypt-ord";
 import { Addr, PandaSigner, toByteString } from "scrypt-ts";
-import { networkStr } from "./App";
 import { Link, Navigate } from "react-router-dom";
 
 function BSV20(props) {
 
-    const { _payAddress, _ordiAddress, _network, _signer } = props
+    const { _ordiAddress, _signer } = props
 
     const connected = () => {
-        return _network !== undefined && _payAddress !== undefined && _ordiAddress !== undefined
+        return _ordiAddress !== undefined
     }
 
     const [_symbol, setSymbol] = useState<string | undefined>(undefined)
