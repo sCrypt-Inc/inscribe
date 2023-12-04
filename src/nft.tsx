@@ -43,9 +43,7 @@ function NFT(props) {
     <Container maxWidth="md">
       {!connected() && (<Navigate to="/" />)}
       <Box sx={{ my: 4 }}>
-        <Box sx={{ pb: 4 }}>
-          <Link to="/" style={{ color: "#FE9C2F" }}> &lt;- Back to Home </Link>
-        </Box>
+        
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Inscribe Image
         </Typography>

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { Box, Button, Container, Typography, CssBaseline } from '@mui/material';
+import { Box, Button, Container, Typography, CssBaseline, Tab, Tabs } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/system';
 import { styled } from '@mui/material/styles';
 import NFT from './nft';
@@ -157,50 +157,96 @@ export function networkStr(network: bsv.Networks.Network | undefined) {
 }
 
 function Home(props) {
+  const [value, setValue] = useState(0);
 
-    const { _network, _payAddress, _ordiAddress, _error, connect } = props
+    const handleChange = (e, tabIndex) => {
+      if (tabIndex == 0) {
+        <NFT/>
+      } else if (tabIndex == 1) {
+        <BSV20/>
+      }
+    setValue(tabIndex);
+  };
 
-    const connected = () => {
-        return _network !== undefined && _payAddress !== undefined && _ordiAddress !== undefined
-    }
-
+  const connected = () => {
     return (
-        <Container maxWidth="sm" sx={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom align="center">
-                    Inscribe on Bitcoin SV
-                </Typography>
+      props._network !== undefined &&
+      props._payAddress !== undefined &&
+      props._ordiAddress !== undefined
+    );
+  };
+
+  
+
+  return (
+    <div>
+      {connected() ? (
+        <Box sx={{ width: '100%', mt: 3 }}>
+          <Tabs value={value} onChange={handleChange}>
+            <Tab label="Image" />
+            <Tab label="Bsv20" />
+          </Tabs>
+          {value === 0 && (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <NFT />
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>
-                    {connected() ? 'Wallet Connected' : 'Connect Wallet'}
-                </Button>
+          )}
+          {value === 1 && (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <BSV20 />
             </Box>
+          )}
+        </Box>
+      ) : (
+        <Container
+          maxWidth="sm"
+          sx={{
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <Box sx={{ mb: 4 }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              align="center"
+            >
+              Inscribe on Bitcoin SV
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={props.connect}
+              disabled={connected()}
+            >
+              Connect Wallet
+            </Button>
+          </Box>
+          
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="body1">
+              <a href="https://github.com/sCrypt-Inc/inscribe">
+                Source at Github
+              </a>
+            </Typography>
+          </Box>
+          {!props._error ? (
+            ''
+          ) : (
             <Box sx={{ mt: 3 }}>
-                <Typography variant="body1">
-                    Network: {networkStr(_network)}
-                </Typography>
+              <Typography variant="body1">{props._error}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-evenly', mt: 3 }}>
-                <Button variant="contained" color="primary" component={Link} to="/nft" disabled={!connected()}>
-                    Image
-                </Button>
-                <Button variant="contained" color="primary" component={Link} to="/bsv20" disabled={!connected()}>
-                    BSV-20
-                </Button>
-            </Box>
-            <Box sx={{ mt: 3 }}>
-                <Typography variant="body1">
-                    <a href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>
-                </Typography>
-            </Box>
-            {
-                !_error
-                    ? ''
-                    : (<Box sx={{ mt: 3 }}><Typography variant="body1">{_error}</Typography></Box>)
-            }
+          )}
         </Container>
-    )
+      )}
+    </div>
+  );
+  
 }
 
 function App() {
