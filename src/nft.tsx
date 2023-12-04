@@ -4,7 +4,7 @@ import { OrdiNFTP2PKH } from 'scrypt-ord';
 import { Addr, PandaSigner } from 'scrypt-ts';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { Container, Box, Typography, Button } from '@mui/material';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 function NFT(props) {
 
@@ -43,7 +43,6 @@ function NFT(props) {
     <Container maxWidth="md">
       {!connected() && (<Navigate to="/" />)}
       <Box sx={{ my: 4 }}>
-        
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Inscribe Image
         </Typography>

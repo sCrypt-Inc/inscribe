@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Container, Box, Typography, Button, TextField } from '@mui/material';
 import { BSV20V2P2PKH } from "scrypt-ord";
 import { Addr, PandaSigner, toByteString } from "scrypt-ts";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 function BSV20(props) {
 
