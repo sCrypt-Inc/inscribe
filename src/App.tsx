@@ -132,89 +132,7 @@ const theme = createTheme({
   },
 });
 
-function Home(props) {
-  const [value, setValue] = useState(0);
-
-  const handleChange = (e, tabIndex) => {
-    if (tabIndex == 0) {
-      <NFT />
-    } else if (tabIndex == 1) {
-      <BSV20 />
-    }
-    setValue(tabIndex);
-  };
-
-  const connected = () => {
-    return props._network !== undefined && props._payAddress !== undefined && props._ordiAddress !== undefined
-  };
-
-  return (
-    <div>
-      {connected() ? (
-        <Box sx={{ width: '100%', mt: 3 }}>
-          <Tabs value={value} onChange={handleChange}>
-            <Tab label="Image" />
-            <Tab label="BSV-20" />
-          </Tabs>
-          {value === 0 && (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <NFT />
-            </Box>
-          )}
-          {value === 1 && (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <BSV20 />
-            </Box>
-          )}
-        </Box>
-      ) : (
-        <Container
-          maxWidth="sm"
-          sx={{
-            height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <Box sx={{ mb: 4 }}>
-            <Typography
-              variant="h4"
-              component="h1"
-              gutterBottom
-              align="center"
-            >
-              Inscribe on Bitcoin SV
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={props.connect}
-              disabled={connected()}
-            >
-              Connect Wallet
-            </Button>
-          </Box>
-          <Box sx={{ mt: 3 }}>
-            <Typography variant="body1" align="center">
-              <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
-              <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
-            </Typography>
-          </Box>
-          {
-            !props._error
-              ? ''
-              : (<Box sx={{ mt: 3 }}> <Typography variant="body1">{props._error}</Typography></Box>)
-          }
-        </Container>
-      )}
-    </div>
-  );
-}
-
-function App() {
+function Home() {
   const [_payAddress, setPayAddress] = useState<bsv.Address | undefined>(undefined)
   const [_ordiAddress, setOrdiAddress] = useState<bsv.Address | undefined>(undefined)
   const [_network, setNetwork] = useState<bsv.Networks.Network | undefined>(undefined)
@@ -240,14 +158,74 @@ function App() {
     }
   }
 
+  const connected = () => {
+    return _network !== undefined && _payAddress !== undefined && _ordiAddress !== undefined
+  };
+
+  const [_tabIndex, setTabIndex] = useState(0);
+
+  const tabOnChange = (e, tabIndex) => {
+    if (tabIndex == 0) {
+      <NFT />
+    } else if (tabIndex == 1) {
+      <BSV20 />
+    }
+    setTabIndex(tabIndex);
+  };
+
+  return (
+    <div>
+      {connected()
+        ? (
+          <Box sx={{ width: '100%', mt: 3 }}>
+            <Tabs value={_tabIndex} onChange={tabOnChange}>
+              <Tab label="Image" />
+              <Tab label="BSV-20" />
+            </Tabs>
+            {_tabIndex === 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />
+              </Box>
+            )}
+            {_tabIndex === 1 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+              </Box>
+            )}
+          </Box>
+        )
+        : (
+          <Container maxWidth="sm" sx={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h4" component="h1" gutterBottom align="center">Inscribe on Bitcoin SV</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+              <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
+            </Box>
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="body1" align="center">
+                <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
+                <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
+              </Typography>
+            </Box>
+            {
+              !_error
+                ? ''
+                : (<Box sx={{ mt: 3 }}> <Typography variant="body1">{_error}</Typography></Box>)
+            }
+          </Container>
+        )}
+    </div>
+  );
+}
+
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Home _payAddress={_payAddress} _ordiAddress={_ordiAddress} _network={_network} _error={_error} connect={connect} />} />
-          <Route path="/nft" element={<NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />} />
-          <Route path="/bsv20" element={<BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />} />
+          <Route path='/' element={<Home />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
