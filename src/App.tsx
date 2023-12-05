@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Box, Button, Container, Typography, CssBaseline, Tab, Tabs } from '@mui/material';
+import { Box, Button, Container, Typography, CssBaseline, Tab, Tabs, Grid } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/system';
 import NFT from './nft';
 import BSV20 from "./bsv20";
@@ -178,10 +178,12 @@ function Home() {
       {connected()
         ? (
           <Box sx={{ width: '100%', mt: 3 }}>
+            <Grid container justifyContent="center">
             <Tabs value={_tabIndex} onChange={tabOnChange}>
               <Tab label="Image" />
               <Tab label="BSV-20" />
             </Tabs>
+            </Grid>
             {_tabIndex === 0 && (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />
