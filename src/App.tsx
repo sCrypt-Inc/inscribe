@@ -175,48 +175,49 @@ function Home() {
 
   return (
     <div>
-      {connected()
-        ? (
-          <Box sx={{ width: '100%', mt: 3 }}>
-            <Grid container justifyContent="center">
-            <Tabs value={_tabIndex} onChange={tabOnChange}>
-              <Tab label="Image" />
-              <Tab label="BSV-20" />
-            </Tabs>
-            </Grid>
-            {_tabIndex === 0 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />
-              </Box>
-            )}
-            {_tabIndex === 1 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />
-              </Box>
-            )}
+      <Box sx={{ width: '100%', mt: 3 }}>
+        <Grid container justifyContent="center">
+          <Tabs value={_tabIndex} onChange={tabOnChange}>
+            <Tab label="Image" disabled={!connected()} />
+            <Tab label="BSV-20" disabled={!connected()} />
+          </Tabs>
+        </Grid>
+        {connected() && _tabIndex === 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
-        )
-        : (
-          <Container maxWidth="sm" sx={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h4" component="h1" gutterBottom align="center">Inscribe on Bitcoin SV</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-              <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
-            </Box>
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="body1" align="center">
-                <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
-                <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
-              </Typography>
-            </Box>
-            {
-              !_error
-                ? ''
-                : (<Box sx={{ mt: 3 }}> <Typography variant="body1">{_error}</Typography></Box>)
-            }
-          </Container>
         )}
+        {connected() && _tabIndex === 1 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+          </Box>
+        )}
+      </Box>
+      {
+        connected()
+          ? ''
+          : (
+            <Container maxWidth="sm" sx={{ height: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom align="center">Inscribe on Bitcoin SV</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
+              </Box>
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="body1" align="center">
+                  <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
+                  <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
+                </Typography>
+              </Box>
+              {
+                !_error
+                  ? ''
+                  : (<Box sx={{ mt: 3 }}> <Typography variant="body1">{_error}</Typography></Box>)
+              }
+            </Container>
+          )
+      }
     </div>
   );
 }
