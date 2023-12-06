@@ -225,7 +225,7 @@ function Home() {
       <Box sx={{ mt: 5 }}>
         <Typography variant="body1" align="center">
           <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
-          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
+          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/-Ete5ZQma8Q">Tutorial Video</a>
         </Typography>
       </Box>
     </div>
