@@ -175,7 +175,10 @@ function Home() {
 
   return (
     <div>
-      <Box sx={{ width: '100%', mt: 3 }}>
+      <Box sx={{ width: '100%', mt: 5 }}>
+        <Typography variant="h4" component="h1" gutterBottom align="center">Inscribe on Bitcoin SV</Typography>
+      </Box>
+      <Box sx={{ width: '100%', mt: 5 }}>
         <Grid container justifyContent="center">
           <Tabs value={_tabIndex} onChange={tabOnChange}>
             <Tab label="Image" disabled={!connected()} />
@@ -197,18 +200,9 @@ function Home() {
         connected()
           ? ''
           : (
-            <Container maxWidth="sm" sx={{ height: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom align="center">Inscribe on Bitcoin SV</Typography>
-              </Box>
+            <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
-              </Box>
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="body1" align="center">
-                  <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
-                  <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
-                </Typography>
               </Box>
               {
                 !_error
@@ -218,6 +212,12 @@ function Home() {
             </Container>
           )
       }
+      <Box sx={{ mt: 5 }}>
+        <Typography variant="body1" align="center">
+          <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
+          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/IsNINX3pqKI?si=x9ORS3uV8Mau6d_p">Tutorial Video</a>
+        </Typography>
+      </Box>
     </div>
   );
 }
