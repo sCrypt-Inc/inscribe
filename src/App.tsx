@@ -6,6 +6,7 @@ import BSV20 from "./bsv20";
 import { useRef, useState } from "react";
 import { PandaSigner, bsv } from "scrypt-ts";
 import { OrdiProvider } from "scrypt-ord";
+import axios from "axios";
 
 const theme = createTheme({
   palette: {
@@ -131,6 +132,15 @@ const theme = createTheme({
     },
   },
 });
+
+export async function submitTx(txid: string, network: bsv.Networks.Network) {
+  const mainnetUrl = `https://v3.ordinals.gorillapool.io/api/tx/${txid}/submit`
+  const testnetUrl = `https://testnet.ordinals.gorillapool.io/api/tx/${txid}/submit`
+  const url = network === bsv.Networks.testnet ? testnetUrl : mainnetUrl
+  setTimeout(() => {
+    axios.post(url)
+  }, 3000);
+}
 
 function Home() {
   const [_payAddress, setPayAddress] = useState<bsv.Address | undefined>(undefined)

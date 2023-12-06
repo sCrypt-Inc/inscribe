@@ -3,6 +3,7 @@ import { Container, Box, Typography, Button, TextField } from '@mui/material';
 import { BSV20V2P2PKH } from "scrypt-ord";
 import { Addr, PandaSigner, toByteString } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
+import { submitTx } from "./App";
 
 function BSV20(props) {
 
@@ -53,6 +54,10 @@ function BSV20(props) {
             setSymbol(undefined)
             setAmount(undefined)
             setDecimal(undefined)
+
+            const txid = tokenId.substring(0, tokenId.length - 2)
+            const network = await signer.getNetwork()
+            submitTx(txid, network)
         } catch (e) {
             setResult(`${e}`)
         }
