@@ -3,10 +3,9 @@ import { Box, Button, Container, Typography, CssBaseline, Tab, Tabs, Grid } from
 import { createTheme, ThemeProvider } from '@mui/system';
 import NFT from './nft';
 import BSV20 from "./bsv20";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PandaSigner, bsv } from "scrypt-ts";
 import { OrdiProvider } from "scrypt-ord";
-import axios from "axios";
 
 const theme = createTheme({
   palette: {
@@ -133,22 +132,17 @@ const theme = createTheme({
   },
 });
 
-export async function submitTx(txid: string, network: bsv.Networks.Network) {
-  const mainnetUrl = `https://v3.ordinals.gorillapool.io/api/tx/${txid}/submit`
-  const testnetUrl = `https://testnet.ordinals.gorillapool.io/api/tx/${txid}/submit`
-  const url = network === bsv.Networks.testnet ? testnetUrl : mainnetUrl
-  setTimeout(() => {
-    axios.post(url)
-  }, 3000);
-}
-
 function Home() {
   const [_payAddress, setPayAddress] = useState<bsv.Address | undefined>(undefined)
   const [_ordiAddress, setOrdiAddress] = useState<bsv.Address | undefined>(undefined)
   const [_network, setNetwork] = useState<bsv.Networks.Network | undefined>(undefined)
   const [_error, setError] = useState<string | undefined>(undefined)
 
-  const _signer = useRef<PandaSigner>(new PandaSigner(new OrdiProvider()))
+  const _signer = useRef<PandaSigner | undefined>(undefined)
+
+  useEffect(() => {
+    _signer.current = new PandaSigner(new OrdiProvider())
+  }, [])
 
   const connect = async () => {
     try {

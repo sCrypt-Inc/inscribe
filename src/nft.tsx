@@ -5,7 +5,6 @@ import { Addr, PandaSigner } from 'scrypt-ts';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { Container, Box, Typography, Button } from '@mui/material';
 import { Navigate } from 'react-router-dom';
-import { submitTx } from './App';
 
 function NFT(props) {
 
@@ -35,9 +34,6 @@ function NFT(props) {
 
       setResult(`Inscribe Tx: ${inscribeTx.id}`)
       setImages([])
-
-      const network = await signer.getNetwork()
-      submitTx(inscribeTx.id, network)
     } catch (e) {
       setResult(`${e}`)
     }
