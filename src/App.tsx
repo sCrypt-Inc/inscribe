@@ -6,6 +6,7 @@ import BSV20 from "./bsv20";
 import { useEffect, useRef, useState } from "react";
 import { PandaSigner, bsv } from "scrypt-ts";
 import { OrdiProvider } from "scrypt-ord";
+import TEXT from "./text";
 
 const theme = createTheme({
   palette: {
@@ -173,6 +174,8 @@ function Home() {
       <NFT />
     } else if (tabIndex == 1) {
       <BSV20 />
+    } else if (tabIndex == 2){
+      <TEXT />
     }
     setTabIndex(tabIndex);
   };
@@ -187,6 +190,7 @@ function Home() {
           <Tabs value={_tabIndex} onChange={tabOnChange}>
             <Tab label="Image" disabled={!connected()} />
             <Tab label="BSV-20" disabled={!connected()} />
+            <Tab label="Text" disabled={!connected()} />
           </Tabs>
         </Grid>
         {connected() && _tabIndex === 0 && (
@@ -197,6 +201,11 @@ function Home() {
         {connected() && _tabIndex === 1 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
             <BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+          </Box>
+        )}
+        {connected() && _tabIndex === 2 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <TEXT _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
       </Box>
