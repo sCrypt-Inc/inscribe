@@ -36,11 +36,11 @@ function TEXT(props) {
       {!connected() && <Navigate to="/" />}
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          Inscribe TEXT
+          Inscribe Text
         </Typography>
       </Box>
       <Box sx={{ mt: 3 }}>
-        <TextField inputRef={text} label="Text" variant="outlined" fullWidth />
+        <TextField inputRef={text} label="any text here" variant="outlined" fullWidth />
 
         <Button
           variant="contained"
