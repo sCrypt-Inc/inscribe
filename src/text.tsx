@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Container, Box, Typography, Button, TextField } from "@mui/material";
 import { OrdiNFTP2PKH } from "scrypt-ord";
-import { Addr, PandaSigner, toByteString } from "scrypt-ts";
+import { Addr, PandaSigner } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 
 function TEXT(props) {
@@ -18,7 +18,7 @@ function TEXT(props) {
         const instance = new OrdiNFTP2PKH(Addr(_ordiAddress!.toByteString()));
         console.log("value :", value);
         await instance.connect(signer);
-        const inscriptionTx = await instance.inscribeText(toByteString(value,true));
+        const inscriptionTx = await instance.inscribeText(value);
         setResult(`Text Inscription ID: ${inscriptionTx.id}`);
       } else {
         setResult("Error: Input value is undefined");
