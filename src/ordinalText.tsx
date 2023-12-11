@@ -4,7 +4,7 @@ import { OrdiNFTP2PKH } from "scrypt-ord";
 import { Addr, PandaSigner } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 
-function TEXT(props) {
+function OrdinalText(props) {
   const { _ordiAddress, _signer } = props;
   const connected = () => _ordiAddress !== undefined;
   const [result, setResult] = useState<string | undefined>(undefined);
@@ -60,4 +60,4 @@ function TEXT(props) {
   );
 }
 
-export default TEXT;
+export default OrdinalText;

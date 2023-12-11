@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Box, Button, Container, Typography, CssBaseline, Tab, Tabs, Grid } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/system';
-import NFT from './nft';
-import BSV20 from "./bsv20";
+import OrdinalImage from './ordinalImage';
+import BSV20v2 from "./bsv20v2";
 import { useEffect, useRef, useState } from "react";
 import { PandaSigner, bsv } from "scrypt-ts";
 import { OrdiProvider } from "scrypt-ord";
-import TEXT from "./text";
+import OrdinalText from "./ordinalText";
 
 const theme = createTheme({
   palette: {
@@ -169,11 +169,11 @@ function Home() {
 
   const tabOnChange = (e, tabIndex) => {
     if (tabIndex == 0) {
-      <NFT />
+      <OrdinalImage />
     } else if (tabIndex == 1) {
-      <BSV20 />
+      <BSV20v2 />
     } else if (tabIndex == 2) {
-      <TEXT />
+      <OrdinalText />
     }
     setTabIndex(tabIndex);
   };
@@ -193,17 +193,17 @@ function Home() {
         </Grid>
         {connected() && _tabIndex === 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <NFT _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <OrdinalImage _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
         {connected() && _tabIndex === 1 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <BSV20v2 _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
         {connected() && _tabIndex === 2 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <TEXT _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <OrdinalText _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
       </Box>

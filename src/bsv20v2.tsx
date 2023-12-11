@@ -4,7 +4,7 @@ import { BSV20V2P2PKH, isBSV20v2 } from "scrypt-ord";
 import { Addr, PandaSigner, toByteString } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 
-function BSV20(props) {
+function BSV20v2(props) {
 
     const { _ordiAddress, _signer } = props
 
@@ -97,4 +97,4 @@ function BSV20(props) {
     )
 }
 
-export default BSV20;
+export default BSV20v2;

@@ -6,7 +6,7 @@ import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { Container, Box, Typography, Button } from '@mui/material';
 import { Navigate } from 'react-router-dom';
 
-function NFT(props) {
+function OrdinalImage(props) {
 
   const { _ordiAddress, _signer } = props
 
@@ -98,4 +98,4 @@ function NFT(props) {
   );
 }
 
-export default NFT;
+export default OrdinalImage;
