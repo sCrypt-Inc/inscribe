@@ -154,9 +154,7 @@ function Home() {
       }
       setPayAddress(await signer.getDefaultAddress())
       setOrdiAddress(await signer.getOrdAddress())
-      const network = await signer.getNetwork()
-      setNetwork(network)
-      await signer.connect(new OrdiProvider(network))
+      setNetwork(await signer.getNetwork())
       setError(undefined)
     } catch (e) {
       setError(`${e}`)
