@@ -91,9 +91,9 @@ function BSV20v2(props) {
                 </Typography>
             </Box>
             <Box sx={{ mt: 3 }}>
-                <TextField label="Symbol" variant="outlined" fullWidth onChange={symbolOnChange} />
-                <TextField label="Amount" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={amountOnChange} />
-                <TextField label="Decimal" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={decimalOnChange} />
+                <TextField label="Symbol" variant="outlined" fullWidth required onChange={symbolOnChange} />
+                <TextField label="Amount" type="number" variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={amountOnChange} />
+                <TextField label="Decimal" type="number"  variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
                 <TextField label="Icon" variant="outlined" placeholder="1Sat Ordinals NFT origin" fullWidth sx={{ mt: 2 }} onChange={iconOnChange} />
                 <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validInput()} onClick={mint}>
                     Mint It!
