@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Container, Box, Typography, Button, TextField } from '@mui/material';
-import { BSV20V2P2PKH } from "scrypt-ord";
+import { BSV20V2P2PKH, isBSV20v2 } from "scrypt-ord";
 import { Addr, PandaSigner, toByteString } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 
@@ -15,6 +15,7 @@ function BSV20(props) {
     const [_symbol, setSymbol] = useState<string | undefined>(undefined)
     const [_amount, setAmount] = useState<bigint | undefined>(undefined)
     const [_decimal, setDecimal] = useState<bigint | undefined>(undefined)
+    const [_icon, setIcon] = useState<string | undefined>(undefined)
 
     const symbolOnChange = (e) => { setSymbol(e.target.value) }
 
@@ -23,6 +24,14 @@ function BSV20(props) {
             setAmount(BigInt(e.target.value))
         } else {
             setAmount(undefined)
+        }
+    }
+
+    const iconOnChange = (e) => {
+        if (isBSV20v2(e.target.value)) {
+            setIcon(e.target.value)
+        } else {
+            setIcon(undefined)
         }
     }
 
@@ -47,14 +56,18 @@ function BSV20(props) {
             const instance = new BSV20V2P2PKH(toByteString(''), symbol, _amount!, _decimal!, Addr(_ordiAddress!.toByteString()))
             await instance.connect(signer)
 
-            const tokenId = await instance.deployToken()
+            const tokenId = await instance.deployToken(_icon ? {
+                icon: _icon
+            } : {})
             setResult(`Token ID: ${tokenId}`)
 
             setSymbol(undefined)
             setAmount(undefined)
             setDecimal(undefined)
-        } catch (e) {
-            setResult(`${e}`)
+            setIcon(undefined)
+        } catch (e: any) {
+            console.error('error', e)
+            setResult(`${e.message ?? e}`)
         }
     }
 
@@ -70,6 +83,7 @@ function BSV20(props) {
                 <TextField label="Symbol" variant="outlined" fullWidth onChange={symbolOnChange} />
                 <TextField label="Amount" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={amountOnChange} />
                 <TextField label="Decimal" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={decimalOnChange} />
+                <TextField label="Icon" variant="outlined" placeholder="1Sat Ordinals NFT origin" fullWidth sx={{ mt: 2 }} onChange={iconOnChange} />
                 <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validInput()} onClick={mint}>
                     Mint It!
                 </Button>
