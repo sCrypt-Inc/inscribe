@@ -37,6 +37,13 @@ function NFT(props) {
     } catch (e) {
       setResult(`${e}`)
     }
+
+    if (window.gtag) {
+      window.gtag('event', 'inscribe', {
+        'event_category': 'image',
+        'event_label': 'inscribe'
+      });
+    }
   }
 
   return (

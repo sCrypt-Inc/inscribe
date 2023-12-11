@@ -172,7 +172,7 @@ function Home() {
       <NFT />
     } else if (tabIndex == 1) {
       <BSV20 />
-    } else if (tabIndex == 2){
+    } else if (tabIndex == 2) {
       <TEXT />
     }
     setTabIndex(tabIndex);
