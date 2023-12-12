@@ -69,6 +69,12 @@ function BSV20v2(props) {
             console.error('error', e)
             setResult(`${e.message ?? e}`)
         }
+
+        if (window.gtag) {
+            window.gtag('event', 'inscribe', {
+                'event_category': 'bsv20v2',
+            });
+        }
     }
 
     return (
@@ -76,7 +82,12 @@ function BSV20v2(props) {
             {!connected() && (<Navigate to="/" />)}
             <Box sx={{ my: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom align="center">
-                    Inscribe BSV-20
+                    Inscribe BSV-20 v2
+                </Typography>
+            </Box>
+            <Box>
+                <Typography variant="body1" align="center">
+                    <a style={{ color: "#FE9C2F" }} href="https://docs.1satordinals.com/bsv20#new-in-v2-tickerless-mode">what's new in v2</a>
                 </Typography>
             </Box>
             <Box sx={{ mt: 3 }}>

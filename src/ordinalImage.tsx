@@ -34,14 +34,14 @@ function OrdinalImage(props) {
 
       setResult(`Inscribe Tx: ${inscribeTx.id}`)
       setImages([])
-    } catch (e) {
-      setResult(`${e}`)
+    } catch (e: any) {
+      console.error('error', e)
+      setResult(`${e.message ?? e}`)
     }
 
     if (window.gtag) {
       window.gtag('event', 'inscribe', {
         'event_category': 'image',
-        'event_label': 'inscribe'
       });
     }
   }

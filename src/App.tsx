@@ -3,6 +3,7 @@ import { Box, Button, Container, Typography, CssBaseline, Tab, Tabs, Grid } from
 import { createTheme, ThemeProvider } from '@mui/system';
 import OrdinalImage from './ordinalImage';
 import BSV20v2 from "./bsv20v2";
+import BSV20v1 from "./bsv20v1";
 import { useEffect, useRef, useState } from "react";
 import { PandaSigner, bsv } from "scrypt-ts";
 import { OrdiProvider } from "scrypt-ord";
@@ -156,8 +157,9 @@ function Home() {
       setOrdiAddress(await signer.getOrdAddress())
       setNetwork(await signer.getNetwork())
       setError(undefined)
-    } catch (e) {
-      setError(`${e}`)
+    } catch (e: any) {
+      console.error('error', e)
+      setError(`${e.message ?? e}`)
     }
   }
 
@@ -171,9 +173,11 @@ function Home() {
     if (tabIndex == 0) {
       <OrdinalImage />
     } else if (tabIndex == 1) {
-      <BSV20v2 />
-    } else if (tabIndex == 2) {
       <OrdinalText />
+    } else if (tabIndex == 2) {
+      <BSV20v2 />
+    } else if (tabIndex == 3) {
+      <BSV20v1 />
     }
     setTabIndex(tabIndex);
   };
@@ -187,8 +191,9 @@ function Home() {
         <Grid container justifyContent="center">
           <Tabs value={_tabIndex} onChange={tabOnChange}>
             <Tab label="Image" disabled={!connected()} />
-            <Tab label="BSV-20" disabled={!connected()} />
             <Tab label="Text" disabled={!connected()} />
+            <Tab label="BSV-20 v2" disabled={!connected()} />
+            <Tab label="BSV-20 v1" disabled={!connected()} />
           </Tabs>
         </Grid>
         {connected() && _tabIndex === 0 && (
@@ -198,12 +203,17 @@ function Home() {
         )}
         {connected() && _tabIndex === 1 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v2 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <OrdinalText _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
         {connected() && _tabIndex === 2 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <OrdinalText _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <BSV20v2 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+          </Box>
+        )}
+        {connected() && _tabIndex === 3 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <BSV20v1 _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
       </Box>

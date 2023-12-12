@@ -23,9 +23,15 @@ function OrdinalText(props) {
       } else {
         setResult("Error: Input value is undefined");
       }
-    } catch (e) {
-      console.error("Error:", e);
-      setResult(`Error: ${e}`);
+    } catch (e: any) {
+      console.error('error', e)
+      setResult(`${e.message ?? e}`)
+    }
+
+    if (window.gtag) {
+      window.gtag('event', 'inscribe', {
+        'event_category': 'text',
+      });
     }
   };
 
