@@ -179,7 +179,7 @@ function BSV20v1(props) {
             </Box>
             {_mintOrDeploy === 'mint' && (
                 <Box sx={{ my: 3 }}>
-                    <TextField label="Tick" variant="outlined" fullWidth onChange={mintTickOnChange} onBlur={mintTickOnBlur} />
+                    <TextField label="Tick" variant="outlined" fullWidth required onChange={mintTickOnChange} onBlur={mintTickOnBlur} />
                     {_mintTickText !== undefined && (<Box sx={{ mt: 2, ml: 2 }}><Typography variant="body1">{_mintTickText}</Typography></Box>)}
                     {_mintTickText !== undefined && _mintTickText !== MINT_TICK_TEXT_INVALID && _mintTickText !== MINT_TICK_TEXT_MINT_OUT && (
                         <Box>
@@ -188,7 +188,7 @@ function BSV20v1(props) {
                             <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>Decimal Precision: {_dec?.toString()}</Typography>
                         </Box>
                     )}
-                    <TextField label="Amount" variant="outlined" fullWidth sx={{ mt: 2 }} onChange={amountOnChange} disabled={!validMintTick()} />
+                    <TextField label="Amount" variant="outlined" required fullWidth sx={{ mt: 2 }} onChange={amountOnChange} disabled={!validMintTick()} />
                     <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validMintInput()} onClick={mint}>
                         Mint It!
                     </Button>
@@ -196,13 +196,13 @@ function BSV20v1(props) {
             )}
             {_mintOrDeploy === 'deploy' && (
                 <Box sx={{ my: 3 }}>
-                    <TextField label="Tick" variant="outlined" fullWidth onChange={deployTickOnChange} onBlur={deployTickOnBlur} />
+                    <TextField label="Tick" variant="outlined" fullWidth required onChange={deployTickOnChange} onBlur={deployTickOnBlur} />
                     {_deployTickText !== undefined && (<Box sx={{ mt: 2, ml: 2 }}><Typography variant="body1">{_deployTickText}</Typography></Box>)}
                     {_deployTickText !== undefined && _deployTickText !== DEPLOY_TICK_TEXT_INVALID && _deployTickText !== DEPLOY_TICK_TEXT_EXISTED && (
                         <Box>
-                            <TextField label="Max Supply" sx={{ mt: 2 }} variant="outlined" fullWidth onChange={maxOnChange} />
-                            <TextField label="Limit Per Mint" sx={{ mt: 2 }} variant="outlined" fullWidth onChange={limOnChange} defaultValue={'0'} />
-                            <TextField label="Decimal Precision" sx={{ mt: 2 }} variant="outlined" fullWidth onChange={decOnChange} defaultValue={'0'} />
+                            <TextField label="Max Supply" sx={{ mt: 2 }} required variant="outlined" fullWidth onChange={maxOnChange} />
+                            <TextField label="Limit Per Mint" sx={{ mt: 2 }} required variant="outlined" fullWidth onChange={limOnChange} defaultValue={'0'} />
+                            <TextField label="Decimal Precision" sx={{ mt: 2 }} required variant="outlined" fullWidth onChange={decOnChange} defaultValue={'0'} />
                         </Box>
                     )}
                     <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validDeployInput()} onClick={deploy}>
