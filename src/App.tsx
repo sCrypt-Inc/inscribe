@@ -224,6 +224,8 @@ function Home() {
             <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
+
+                Do not have a Panda Wallet ?..  <a href="https://chromewebstore.google.com/detail/panda-wallet/mkpdopdllihjhemekgioagjbbfdboopi">Get it here</a>
               </Box>
               {
                 !_error
