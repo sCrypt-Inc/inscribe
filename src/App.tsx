@@ -223,7 +223,7 @@ function Home() {
           : (
              <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
   <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-    <Button variant="contained" color="primary">Connect Wallet</Button>
+    <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
   </Box>
   <br />
   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
