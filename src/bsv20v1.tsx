@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Container, Box, Typography, Button, TextField } from '@mui/material';
-import { Addr, PandaSigner, toByteString } from "scrypt-ts";
+import { Addr, PandaSigner, toByteString, bsv } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 import { BSV20V1P2PKH } from "scrypt-ord";
 import axios from 'axios';
@@ -12,7 +12,7 @@ import FormLabel from '@mui/material/FormLabel';
 
 function BSV20v1(props) {
 
-    const { _ordiAddress, _signer } = props
+    const { _ordiAddress, _signer, _network } = props
 
     const connected = () => {
         return _ordiAddress !== undefined
@@ -72,9 +72,7 @@ function BSV20v1(props) {
         }
 
         if (window.gtag) {
-            window.gtag('event', 'inscribe', {
-                'event_category': 'bsv20v1-mint',
-            });
+            window.gtag('event', 'inscribe-bsv20v1-mint');
         }
     }
 
@@ -86,6 +84,70 @@ function BSV20v1(props) {
         setMax(max)
         setLim(lim)
         setDec(dec)
+    }
+
+    const [_singleOrBatch, setSingleOrBatch] = useState('single')
+    const singleOrBatchOnChange = (e) => {
+        const value = e.target.value as string
+        setSingleOrBatch(value)
+        if (value === 'single') {
+            setRepeat(undefined)
+        } else {
+            setAmount(undefined)
+        }
+        setResult(undefined)
+    }
+
+    const [_repeat, setRepeat] = useState<bigint | undefined>(undefined)
+    const repeatOnChange = (e) => {
+        if (/^\d+$/.test(e.target.value)) {
+            setRepeat(BigInt(e.target.value))
+        } else {
+            setRepeat(undefined)
+        }
+    }
+
+    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 10000n!
+
+    const fire = async () => {
+        try {
+            const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
+            const serviceFeePerRepeat = 10
+            const payload = {
+                tick: _mintTick,
+                lim: _lim!.toString(),
+                repeat: _repeat!.toString(),
+                addr: _ordiAddress.toString()
+            }
+            const signer = _signer as PandaSigner
+            const address = await signer.getDefaultAddress()
+            const tx = new bsv.Transaction()
+                .from(await signer.listUnspent(address))
+                .addOutput(new bsv.Transaction.Output({
+                    script: bsv.Script.fromHex('006a' + Buffer.from(JSON.stringify(payload), 'utf-8').toString('hex')),
+                    satoshis: 0
+                }))
+                .addOutput(new bsv.Transaction.Output({
+                    script: bsv.Script.fromAddress(fundAddress),
+                    satoshis: serviceFeePerRepeat * Number(_repeat!),
+                }))
+                .change(address)
+            tx.feePerKb(await signer.provider!.getFeePerKb())
+            const signedTx = await signer.signTransaction(tx)
+            const response = await axios
+                .post(`https://witnessonchain.com/bsv20v1/batch_mint`, {
+                    'raw': signedTx.toString()
+                })
+                .then(r => r.data)
+            setResult(response?.code === 0 ? `Fire Tx: ${tx.id}` : `Error ${response.code}: ${response.message}`)
+        } catch (e: any) {
+            console.error('error', e)
+            setResult(`${e.message ?? e}`)
+        }
+
+        if (window.gtag) {
+            window.gtag('event', 'inscribe-bsv20v1-batch-mint');
+        }
     }
 
     const [_result, setResult] = useState<string | undefined>(undefined)
@@ -154,9 +216,7 @@ function BSV20v1(props) {
         }
 
         if (window.gtag) {
-            window.gtag('event', 'inscribe', {
-                'event_category': 'bsv20v1-deploy',
-            });
+            window.gtag('event', 'inscribe-bsv20v1-deploy');
         }
     }
 
@@ -188,10 +248,33 @@ function BSV20v1(props) {
                             <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>Decimal Precision: {_dec?.toString()}</Typography>
                         </Box>
                     )}
-                    <TextField label="Amount" variant="outlined" required fullWidth sx={{ mt: 2 }} onChange={amountOnChange} disabled={!validMintTick()} />
-                    <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validMintInput()} onClick={mint}>
-                        Mint It!
-                    </Button>
+                    {_network === bsv.Networks.mainnet && (
+                        <Box sx={{ my: 2 }}>
+                            <FormControl>
+                                <FormLabel id="radio-buttons-single-batch-label" />
+                                <RadioGroup aria-labelledby="radio-buttons-single-batch-label" defaultValue="single" name="radio-buttons-single-batch" onChange={singleOrBatchOnChange}>
+                                    <FormControlLabel value="single" control={<Radio />} label="Single Mint" />
+                                    <FormControlLabel value="batch" control={<Radio />} label="Batch Mint" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Box>
+                    )}
+                    {_singleOrBatch === 'single' && (
+                        <Box sx={{ mt: 2 }}>
+                            <TextField label="Amount" variant="outlined" required fullWidth onChange={amountOnChange} disabled={!validMintTick()} />
+                            <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validMintInput()} onClick={mint}>
+                                Mint It!
+                            </Button>
+                        </Box>
+                    )}
+                    {_singleOrBatch === 'batch' && (
+                        <Box sx={{ mt: 2 }}>
+                            <TextField label="Repeat" variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
+                            <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
+                                Fire!
+                            </Button>
+                        </Box>
+                    )}
                 </Box>
             )}
             {_mintOrDeploy === 'deploy' && (
