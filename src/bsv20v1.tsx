@@ -112,7 +112,7 @@ function BSV20v1(props) {
     const fire = async () => {
         try {
             const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
-            const serviceFeePerRepeat = 10
+            const serviceFeePerRepeat = 50
             const payload = {
                 tick: _mintTick,
                 lim: _lim!.toString(),
