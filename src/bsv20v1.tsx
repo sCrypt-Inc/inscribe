@@ -107,7 +107,7 @@ function BSV20v1(props) {
         }
     }
 
-    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 10000n!
+    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 1000n!
 
     const fire = async () => {
         try {
