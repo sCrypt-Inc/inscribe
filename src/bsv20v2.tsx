@@ -85,7 +85,7 @@ function BSV20v2(props) {
             </Box>
             <Box>
                 <Typography variant="body1" align="center">
-                    <a style={{ color: "#FE9C2F" }} href="https://docs.1satordinals.com/bsv20#new-in-v2-tickerless-mode">what's new in v2</a>
+                    <a style={{ color: "#FE9C2F" }} href="https://docs.1satordinals.com/bsv20#new-in-v2-tickerless-mode" target="_blank" rel="noreferrer">what's new in v2</a>
                 </Typography>
             </Box>
             <Box sx={{ mt: 3 }}>

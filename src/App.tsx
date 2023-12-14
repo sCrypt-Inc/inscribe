@@ -232,7 +232,7 @@ function Home() {
                 </Typography>
                 <br />
                 <Typography align="center">
-                  👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mlbnicldlpdimbjdcncnklfempedeipj" style={{ color: '#FE9C2F' }}>Get it here</a>
+                  👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mlbnicldlpdimbjdcncnklfempedeipj" style={{ color: '#FE9C2F' }} target="_blank" rel="noreferrer">Get it here</a>
                 </Typography>
               </Box>
               {
@@ -245,8 +245,8 @@ function Home() {
       }
       <Box sx={{ mt: 5 }}>
         <Typography variant="body1" align="center">
-          <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
-          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/-Ete5ZQma8Q">Tutorial Video</a>
+          <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe" target="_blank" rel="noreferrer">Source at Github</a>&nbsp; &nbsp;
+          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/-Ete5ZQma8Q" target="_blank" rel="noreferrer">Tutorial Video</a>
         </Typography>
       </Box>
     </div>
