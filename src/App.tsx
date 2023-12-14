@@ -232,7 +232,7 @@ function Home() {
                 </Typography>
                 <br />
                 <Typography align="center">
-                  👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mkpdopdllihjhemekgioagjbbfdboopi" style={{ color: '#FE9C2F' }}>Get it here</a>
+                  👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mlbnicldlpdimbjdcncnklfempedeipj" style={{ color: '#FE9C2F' }}>Get it here</a>
                 </Typography>
               </Box>
               {
