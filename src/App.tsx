@@ -170,13 +170,13 @@ function Home() {
   const [_tabIndex, setTabIndex] = useState(0);
 
   const tabOnChange = (e, tabIndex) => {
-    if (tabIndex == 0) {
+    if (tabIndex === 0) {
       <OrdinalImage />
-    } else if (tabIndex == 1) {
+    } else if (tabIndex === 1) {
       <OrdinalText />
-    } else if (tabIndex == 2) {
+    } else if (tabIndex === 2) {
       <BSV20v2 />
-    } else if (tabIndex == 3) {
+    } else if (tabIndex === 3) {
       <BSV20v1 />
     }
     setTabIndex(tabIndex);
