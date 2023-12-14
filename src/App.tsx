@@ -228,7 +228,7 @@ function Home() {
               <br />
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
                 <Typography align="center">
-                  Do not have a Panda Wallet ?
+                  Do not have a Panda Wallet?
                 </Typography>
                 <br />
                 <Typography align="center">
