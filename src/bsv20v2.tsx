@@ -71,9 +71,7 @@ function BSV20v2(props) {
         }
 
         if (window.gtag) {
-            window.gtag('event', 'inscribe', {
-                'event_category': 'bsv20v2',
-            });
+            window.gtag('event', 'inscribe-bsv20v2');
         }
     }
 
@@ -93,7 +91,7 @@ function BSV20v2(props) {
             <Box sx={{ mt: 3 }}>
                 <TextField label="Symbol" variant="outlined" fullWidth required onChange={symbolOnChange} />
                 <TextField label="Amount" type="number" variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={amountOnChange} />
-                <TextField label="Decimal" type="number"  variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
+                <TextField label="Decimal" type="number" variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
                 <TextField label="Icon" variant="outlined" placeholder="1Sat Ordinals NFT origin" fullWidth sx={{ mt: 2 }} onChange={iconOnChange} />
                 <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validInput()} onClick={mint}>
                     Mint It!

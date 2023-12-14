@@ -40,9 +40,7 @@ function OrdinalImage(props) {
     }
 
     if (window.gtag) {
-      window.gtag('event', 'inscribe', {
-        'event_category': 'image',
-      });
+      window.gtag('event', 'inscribe-image');
     }
   }
 

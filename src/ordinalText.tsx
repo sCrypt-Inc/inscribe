@@ -29,9 +29,7 @@ function OrdinalText(props) {
     }
 
     if (window.gtag) {
-      window.gtag('event', 'inscribe', {
-        'event_category': 'text',
-      });
+      window.gtag('event', 'inscribe-text');
     }
   };
 

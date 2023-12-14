@@ -213,7 +213,7 @@ function Home() {
         )}
         {connected() && _tabIndex === 3 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v1 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <BSV20v1 _ordiAddress={_ordiAddress} _signer={_signer.current} _network={_network} />
           </Box>
         )}
       </Box>
@@ -221,20 +221,20 @@ function Home() {
         connected()
           ? ''
           : (
-             <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-    <Button variant="contained" color="primary">Connect Wallet</Button>
-  </Box>
-  <br />
-  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
-    <Typography align="center">
-      Do not have a Panda Wallet ?
-    </Typography>
-    <br />
-    <Typography align="center">
-      👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mkpdopdllihjhemekgioagjbbfdboopi" style={{ color: '#FE9C2F' }}>Get it here</a>
-    </Typography>
-  </Box>
+            <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
+              </Box>
+              <br />
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
+                <Typography align="center">
+                  Do not have a Panda Wallet ?
+                </Typography>
+                <br />
+                <Typography align="center">
+                  👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mkpdopdllihjhemekgioagjbbfdboopi" style={{ color: '#FE9C2F' }}>Get it here</a>
+                </Typography>
+              </Box>
               {
                 !_error
                   ? ''
