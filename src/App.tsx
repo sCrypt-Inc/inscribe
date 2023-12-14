@@ -175,9 +175,9 @@ function Home() {
     } else if (tabIndex === 1) {
       <OrdinalText />
     } else if (tabIndex === 2) {
-      <BSV20v2 />
-    } else if (tabIndex === 3) {
       <BSV20v1 />
+    } else if (tabIndex === 3) {
+      <BSV20v2 />
     }
     setTabIndex(tabIndex);
   };
@@ -192,8 +192,8 @@ function Home() {
           <Tabs value={_tabIndex} onChange={tabOnChange}>
             <Tab label="Image" disabled={!connected()} />
             <Tab label="Text" disabled={!connected()} />
-            <Tab label="BSV-20 v2" disabled={!connected()} />
             <Tab label="BSV-20 v1" disabled={!connected()} />
+            <Tab label="BSV-20 v2" disabled={!connected()} />
           </Tabs>
         </Grid>
         {connected() && _tabIndex === 0 && (
@@ -208,12 +208,12 @@ function Home() {
         )}
         {connected() && _tabIndex === 2 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v2 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <BSV20v1 _ordiAddress={_ordiAddress} _signer={_signer.current} />
           </Box>
         )}
         {connected() && _tabIndex === 3 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v1 _ordiAddress={_ordiAddress} _signer={_signer.current} _network={_network} />
+            <BSV20v2 _ordiAddress={_ordiAddress} _signer={_signer.current} _network={_network} />
           </Box>
         )}
       </Box>
