@@ -250,7 +250,7 @@ function BSV20v1(props) {
                     )}
     
                     <Box sx={{ mt: 2 }}>
-                        <TextField label="Repeat (Max: 10000)" defaultValue={1} variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
+                        <TextField label="Repeat (Max: 10000, 50 sats/mint)" defaultValue={1} variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
                         <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
                             Fire!
                         </Button>
