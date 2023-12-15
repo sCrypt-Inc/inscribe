@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Container, Box, Typography, Button, TextField, Backdrop, CircularProgress } from '@mui/material';
-import { Addr, PandaSigner, toByteString, bsv } from "scrypt-ts";
+import { useEffect, useState } from "react";
+import { Container, Box, Typography, Button, TextField, Backdrop, CircularProgress, Chip } from '@mui/material';
+import { Addr, PandaSigner, toByteString, bsv, UTXO } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 import { BSV20V1P2PKH } from "scrypt-ord";
 import axios from 'axios';
@@ -9,6 +9,8 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+
+const serviceFeePerRepeat = 50;
 
 function BSV20v1(props) {
 
@@ -30,7 +32,11 @@ function BSV20v1(props) {
 
     const [_mintTick, setMintTick] = useState<string | undefined>(undefined)
     
-    const [isLoading, setLoading] = useState<boolean>(false)
+    const [_isLoading, setLoading] = useState<boolean>(false)
+    const [_price, setPrice] = useState<number>(0);
+    const [_cost, setCost] = useState<number>(0)
+    const [_feePerKb, setFeePerKb] = useState<number>(1);
+    const [_utxos, setUTXOs] = useState<UTXO[]>([]);
     const mintTickOnChange = (e) => setMintTick(e.target.value)
     const mintTickOnBlur = async () => {
         try {
@@ -49,35 +55,6 @@ function BSV20v1(props) {
         }
     }
 
-    const [_amount, setAmount] = useState<bigint | undefined>(undefined)
-    const amountOnChange = (e) => {
-        if (/^\d+$/.test(e.target.value)) {
-            setAmount(BigInt(e.target.value))
-        } else {
-            setAmount(undefined)
-        }
-    }
-
-    const validMintInput = () => validMintTick() && _amount !== undefined && _amount > 0n && _amount <= _lim!
-
-    const mint = async () => {
-        try {
-            const signer = _signer as PandaSigner
-            const instance = new BSV20V1P2PKH(toByteString(_mintTick!, true), _max!, _lim!, _dec!, Addr(_ordiAddress!.toByteString()))
-            await instance.connect(signer)
-
-            const mintTx = await instance.mint(_amount!)
-            setResult(`Mint Tx: ${mintTx.id}`)
-        } catch (e: any) {
-            console.error('error', e)
-            setResult(`${e.message ?? e}`)
-        }
-
-        if (window.gtag) {
-            window.gtag('event', 'inscribe-bsv20v1-mint');
-        }
-    }
-
     const [_max, setMax] = useState<bigint | undefined>(undefined)
     const [_lim, setLim] = useState<bigint | undefined>(undefined)
     const [_dec, setDec] = useState<bigint | undefined>(undefined)
@@ -92,47 +69,62 @@ function BSV20v1(props) {
     const repeatOnChange = (e) => {
         if (/^\d+$/.test(e.target.value)) {
             setRepeat(BigInt(e.target.value))
+            setCost(calcCost(_utxos, Number(e.target.value)));
         } else {
             setRepeat(undefined)
         }
     }
 
+    function buildTx(utxos: UTXO[], changeAddress: bsv.Address, feePerKb: number, repeat: number) {
+        const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
+
+        const fee = serviceFeePerRepeat * repeat
+        const tx = new bsv.Transaction()
+            .from(utxos)
+            .addOutput(new bsv.Transaction.Output({
+                script: bsv.Script.fromAddress(fundAddress),
+                satoshis: fee,
+            }))
+
+        for (let i = 0; i < repeat; i++) {
+            tx.addOutput(new bsv.Transaction.Output({
+                satoshis: 2,
+                script: bsv.Script.buildPublicKeyHashOut("13J4uQehfdvgrbs3zR4JQ46hQgm9zr8yGv")
+            }))
+        }
+
+        tx.change(changeAddress)
+        tx.feePerKb(feePerKb)
+
+        return tx;
+    }
+
+    function  calcCost(utxos: UTXO[], repeat: number){
+        const dummyChangeAddress = bsv.Address.fromString('13J4uQehfdvgrbs3zR4JQ46hQgm9zr8yGv');
+        const tx = buildTx(utxos, dummyChangeAddress, _feePerKb, repeat);
+        return tx.inputAmount - tx.getChangeAmount() + Number(repeat!);
+    }
+
     const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 10000n!
 
     const fire = async () => {
-        const serviceFeePerRepeat = 50;
-        const fee = serviceFeePerRepeat * Number(_repeat!)
+
         try {
             setLoading(true)
-            const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
-
-            const payload = {
-                tick: _mintTick,
-                lim: _lim!.toString(),
-                repeat: _repeat!.toString(),
-                addr: _ordiAddress.toString()
-            }
             const signer = _signer as PandaSigner
-            const address = await signer.getDefaultAddress()
-            const tx = new bsv.Transaction()
-                .from(await signer.listUnspent(address))
-                .addOutput(new bsv.Transaction.Output({
-                    script: bsv.Script.fromHex('006a' + Buffer.from(JSON.stringify(payload), 'utf-8').toString('hex')),
-                    satoshis: 0
-                }))
-                .addOutput(new bsv.Transaction.Output({
-                    script: bsv.Script.fromAddress(fundAddress),
-                    satoshis: fee,
-                }))
-                .change(address)
-            tx.feePerKb(await signer.provider!.getFeePerKb())
+            const address = await signer.getDefaultAddress();
+            const tx = buildTx(_utxos, address, _feePerKb, Number(_repeat!));
             const signedTx = await signer.signTransaction(tx)
             const response = await axios
                 .post(`https://witnessonchain.com/bsv20v1/batch_mint`, {
-                    'raw': signedTx.toString()
+                    raw: signedTx.toString(),
+                    tick: _mintTick,
+                    lim: _lim!.toString(),
+                    repeat: _repeat!.toString(),
+                    addr: _ordiAddress.toString()
                 })
                 .then(r => r.data)
-            setResult(response?.code === 0 ? `Fire Tx: ${tx.id}` : `Error ${response.code}: ${response.message}`)
+            setResult(response?.code === 0 ? `Order Tx: ${tx.id}` : `Error ${response.code}: ${response.message}`)
         } catch (e: any) {
             console.error('error', e)
             setResult(`${e.message ?? e}`)
@@ -141,6 +133,7 @@ function BSV20v1(props) {
         }
 
         if (window.gtag) {
+            const fee = serviceFeePerRepeat * Number(_repeat!)
             window.gtag('event', 'inscribe-bsv20v1-batch-mint', {
                 tick: _mintTick,
                 amt: _lim!.toString(),
@@ -220,6 +213,31 @@ function BSV20v1(props) {
         }
     }
 
+    useEffect( () => {
+        const signer = _signer as PandaSigner;
+
+        signer.getDefaultAddress()
+        .then(address => signer.listUnspent(address))
+        .then(us => {
+            setUTXOs(us || []);
+
+            setCost(calcCost(us, Number(_repeat || 1)));
+        })
+        signer.provider!.getFeePerKb().then(fpkb => {
+            setFeePerKb(fpkb);
+        })
+    }, [])
+
+
+    useEffect( () => {
+        fetch("https://api.whatsonchain.com/v1/bsv/main/exchangerate")
+        .then(res => res.json())
+        .then(data => {
+            setPrice(data?.rate || 0);
+        })
+    }, [])
+
+
     return (
         <Container maxWidth="md">
             {!connected() && (<Navigate to="/" />)}
@@ -251,9 +269,20 @@ function BSV20v1(props) {
     
                     <Box sx={{ mt: 2 }}>
                         <TextField label="Repeat (Max: 10000, Fee: 50 sats/mint)" defaultValue={1} variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
-                        <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
-                            Fire!
-                        </Button>
+                        
+                        <Box sx={{ mt: 2,display: 'flex', flexDirection: "row" }}>
+
+                            <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
+                                Fire!
+                            </Button>
+                        {
+                                _cost > 0 && validFireInput() ?
+                                <Typography color="primary" sx={{mt: 3, ml: 3}}>{_price > 0 ? `Total Cost: ${_cost} sats, $${(_price*_cost/100000000).toFixed(5)}USD ` : `Total Cost: ${_cost} sats`}</Typography>
+                                : 
+                                <></>
+                            }
+                        </Box>
+
                     </Box>
                 </Box>
             )}
@@ -277,7 +306,7 @@ function BSV20v1(props) {
 
             <Backdrop
                 sx={{ color: '#fff', zIndex: 1000000 }}
-                open={isLoading}
+                open={_isLoading}
             >
                 <CircularProgress color="inherit" />
             </Backdrop>
