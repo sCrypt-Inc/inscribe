@@ -100,10 +100,12 @@ function BSV20v1(props) {
     const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 10000n!
 
     const fire = async () => {
+        const serviceFeePerRepeat = 50;
+        const fee = serviceFeePerRepeat * Number(_repeat!)
         try {
             setLoading(true)
             const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
-            const serviceFeePerRepeat = 50
+
             const payload = {
                 tick: _mintTick,
                 lim: _lim!.toString(),
@@ -120,7 +122,7 @@ function BSV20v1(props) {
                 }))
                 .addOutput(new bsv.Transaction.Output({
                     script: bsv.Script.fromAddress(fundAddress),
-                    satoshis: serviceFeePerRepeat * Number(_repeat!),
+                    satoshis: fee,
                 }))
                 .change(address)
             tx.feePerKb(await signer.provider!.getFeePerKb())
@@ -143,6 +145,7 @@ function BSV20v1(props) {
                 tick: _mintTick,
                 amt: _lim!.toString(),
                 repeat: _repeat!.toString(),
+                fee: fee!.toString()
             });
         }
     }
