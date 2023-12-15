@@ -88,7 +88,7 @@ function BSV20v1(props) {
         setDec(dec)
     }
 
-    const [_repeat, setRepeat] = useState<bigint | undefined>(undefined)
+    const [_repeat, setRepeat] = useState<bigint | undefined >(1n)
     const repeatOnChange = (e) => {
         if (/^\d+$/.test(e.target.value)) {
             setRepeat(BigInt(e.target.value))
