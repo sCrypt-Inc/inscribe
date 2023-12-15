@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Container, Box, Typography, Button, TextField } from '@mui/material';
+import { Container, Box, Typography, Button, TextField, Backdrop, CircularProgress } from '@mui/material';
 import { Addr, PandaSigner, toByteString, bsv } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 import { BSV20V1P2PKH } from "scrypt-ord";
@@ -29,6 +29,8 @@ function BSV20v1(props) {
     }
 
     const [_mintTick, setMintTick] = useState<string | undefined>(undefined)
+    
+    const [isLoading, setLoading] = useState<boolean>(false)
     const mintTickOnChange = (e) => setMintTick(e.target.value)
     const mintTickOnBlur = async () => {
         try {
@@ -86,18 +88,6 @@ function BSV20v1(props) {
         setDec(dec)
     }
 
-    const [_singleOrBatch, setSingleOrBatch] = useState('single')
-    const singleOrBatchOnChange = (e) => {
-        const value = e.target.value as string
-        setSingleOrBatch(value)
-        if (value === 'single') {
-            setRepeat(undefined)
-        } else {
-            setAmount(undefined)
-        }
-        setResult(undefined)
-    }
-
     const [_repeat, setRepeat] = useState<bigint | undefined>(undefined)
     const repeatOnChange = (e) => {
         if (/^\d+$/.test(e.target.value)) {
@@ -111,6 +101,7 @@ function BSV20v1(props) {
 
     const fire = async () => {
         try {
+            setLoading(true)
             const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
             const serviceFeePerRepeat = 50
             const payload = {
@@ -143,6 +134,8 @@ function BSV20v1(props) {
         } catch (e: any) {
             console.error('error', e)
             setResult(`${e.message ?? e}`)
+        } finally {
+            setLoading(false)
         }
 
         if (window.gtag) {
@@ -248,33 +241,13 @@ function BSV20v1(props) {
                             <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>Decimal Precision: {_dec?.toString()}</Typography>
                         </Box>
                     )}
-                    {_network === bsv.Networks.mainnet && (
-                        <Box sx={{ my: 2 }}>
-                            <FormControl>
-                                <FormLabel id="radio-buttons-single-batch-label" />
-                                <RadioGroup aria-labelledby="radio-buttons-single-batch-label" defaultValue="single" name="radio-buttons-single-batch" onChange={singleOrBatchOnChange}>
-                                    <FormControlLabel value="single" control={<Radio />} label="Single Mint" />
-                                    <FormControlLabel value="batch" control={<Radio />} label="Batch Mint" />
-                                </RadioGroup>
-                            </FormControl>
-                        </Box>
-                    )}
-                    {_singleOrBatch === 'single' && (
-                        <Box sx={{ mt: 2 }}>
-                            <TextField label="Amount" variant="outlined" required fullWidth onChange={amountOnChange} disabled={!validMintTick()} />
-                            <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validMintInput()} onClick={mint}>
-                                Mint It!
-                            </Button>
-                        </Box>
-                    )}
-                    {_singleOrBatch === 'batch' && (
-                        <Box sx={{ mt: 2 }}>
-                            <TextField label="Repeat (Max: 10000)" variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
-                            <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
-                                Fire!
-                            </Button>
-                        </Box>
-                    )}
+    
+                    <Box sx={{ mt: 2 }}>
+                        <TextField label="Repeat (Max: 10000)" defaultValue={1} variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
+                        <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
+                            Fire!
+                        </Button>
+                    </Box>
                 </Box>
             )}
             {_mintOrDeploy === 'deploy' && (
@@ -294,6 +267,13 @@ function BSV20v1(props) {
                 </Box>
             )}
             {_result && (<Box sx={{ mt: 3 }}><Typography variant="body1">{_result}</Typography></Box>)}
+
+            <Backdrop
+                sx={{ color: '#fff', zIndex: 1000000 }}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Container>
     )
 }
