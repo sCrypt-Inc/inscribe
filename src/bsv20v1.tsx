@@ -139,7 +139,11 @@ function BSV20v1(props) {
         }
 
         if (window.gtag) {
-            window.gtag('event', 'inscribe-bsv20v1-batch-mint');
+            window.gtag('event', 'inscribe-bsv20v1-batch-mint', {
+                tick: _mintTick,
+                amt: _lim!.toString(),
+                repeat: _repeat!.toString(),
+            });
         }
     }
 
