@@ -107,7 +107,7 @@ function BSV20v1(props) {
         }
     }
 
-    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 1000n!
+    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 10000n!
 
     const fire = async () => {
         try {
@@ -269,7 +269,7 @@ function BSV20v1(props) {
                     )}
                     {_singleOrBatch === 'batch' && (
                         <Box sx={{ mt: 2 }}>
-                            <TextField label="Repeat (Max: 1000)" variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
+                            <TextField label="Repeat (Max: 10000)" variant="outlined" required fullWidth onChange={repeatOnChange} disabled={!validMintTick()} />
                             <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validFireInput()} onClick={fire}>
                                 Fire!
                             </Button>
