@@ -10,11 +10,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 
+import { useInterval } from 'usehooks-ts'
+
 const serviceFeePerRepeat = 50;
 
 function BSV20v1(props) {
 
-    const { _ordiAddress, _signer, _network } = props
+    const { _ordiAddress, _signer, _payAddress, _network } = props
 
     const connected = () => {
         return _ordiAddress !== undefined
@@ -76,7 +78,7 @@ function BSV20v1(props) {
     }
 
     function buildTx(utxos: UTXO[], changeAddress: bsv.Address, feePerKb: number, repeat: number) {
-        const fundAddress = '1PakfkHtdJa62F1p5n68aN417Ah5VCB5i4'
+        const fundAddress = '1Lv2HWPcaTKcrh8VHT1MChB6j1gK9xX8iN'
 
         const fee = serviceFeePerRepeat * repeat
         const tx = new bsv.Transaction()
@@ -89,7 +91,7 @@ function BSV20v1(props) {
         for (let i = 0; i < repeat; i++) {
             tx.addOutput(new bsv.Transaction.Output({
                 satoshis: 2,
-                script: bsv.Script.buildPublicKeyHashOut("13J4uQehfdvgrbs3zR4JQ46hQgm9zr8yGv")
+                script: bsv.Script.buildPublicKeyHashOut("12m2mGEMNSZGtKaxyQQ8VLaSstqvuSxZ3D")
             }))
         }
 
@@ -100,23 +102,21 @@ function BSV20v1(props) {
     }
 
     function  calcCost(utxos: UTXO[], repeat: number){
-        const dummyChangeAddress = bsv.Address.fromString('13J4uQehfdvgrbs3zR4JQ46hQgm9zr8yGv');
-        const tx = buildTx(utxos, dummyChangeAddress, _feePerKb, repeat);
+        const tx = buildTx(utxos, _ordiAddress, _feePerKb, repeat);
         return tx.inputAmount - tx.getChangeAmount() + Number(repeat!);
     }
 
-    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 10000n!
+    const validFireInput = () => validMintTick() && _repeat !== undefined && _repeat > 0n && _repeat <= 20000n! && _ordiAddress !== undefined  && _payAddress !== undefined
 
     const fire = async () => {
 
         try {
             setLoading(true)
             const signer = _signer as PandaSigner
-            const address = await signer.getDefaultAddress();
-            const tx = buildTx(_utxos, address, _feePerKb, Number(_repeat!));
+            const tx = buildTx(_utxos, _payAddress!, _feePerKb, Number(_repeat!));
             const signedTx = await signer.signTransaction(tx)
             const response = await axios
-                .post(`https://witnessonchain.com/bsv20v1/batch_mint`, {
+                .post(`https://inscribe-api.scrypt.io/bsv20v1/batch_mint`, {
                     raw: signedTx.toString(),
                     tick: _mintTick,
                     lim: _lim!.toString(),
@@ -124,6 +124,25 @@ function BSV20v1(props) {
                     addr: _ordiAddress.toString()
                 })
                 .then(r => r.data)
+
+            setUTXOs([
+                {
+                    satoshis: tx.outputs[tx.outputs.length -1].satoshis,
+                    txId: tx.id,
+                    outputIndex: tx.outputs.length -1,
+                    script: bsv.Script.buildPublicKeyHashOut(_payAddress).toHex()
+                }
+            ])
+
+            const historyTxs = JSON.parse(localStorage.getItem('history') || "[]");
+            
+            historyTxs.push({
+                tx: tx.id,
+                time: new Date().getTime()
+            })
+
+            localStorage.setItem('history', JSON.stringify(historyTxs))
+
             setResult(response?.code === 0 ? `Order Tx: ${tx.id}` : `Error ${response.code}: ${response.message}`)
         } catch (e: any) {
             console.error('error', e)
@@ -216,15 +235,24 @@ function BSV20v1(props) {
     useEffect( () => {
         const signer = _signer as PandaSigner;
 
-        signer.getDefaultAddress()
-        .then(address => signer.listUnspent(address))
-        .then(us => {
-            setUTXOs(us || []);
+        if(_payAddress) {
 
-            setCost(calcCost(us, Number(_repeat || 1)));
-        })
+            signer.listUnspent(_payAddress)
+            .then(us => {
+                setUTXOs(us || []);
+                setCost(calcCost(us, Number(_repeat || 1)));
+            })
+            .catch(e => {
+                console.error('error', e)
+            })
+
+        }
+
         signer.provider!.getFeePerKb().then(fpkb => {
             setFeePerKb(fpkb);
+        })
+        .catch(e => {
+            console.error('error', e)
         })
     }, [])
 
@@ -235,7 +263,30 @@ function BSV20v1(props) {
         .then(data => {
             setPrice(data?.rate || 0);
         })
+        .catch(e => {
+            console.error('error', e)
+        })
     }, [])
+
+    useInterval(
+        () => {
+            const signer = _signer as PandaSigner;
+
+            if(_payAddress){
+                signer.listUnspent(_payAddress)
+                .then(us => {
+                    setUTXOs(us || []);
+                    setCost(calcCost(us, Number(_repeat || 1)));
+                })
+                .catch(e => {
+                    console.error('error', e)
+                })
+            }
+
+        },
+        // Delay in milliseconds or null to stop it
+        3000,
+      )
 
 
     return (
