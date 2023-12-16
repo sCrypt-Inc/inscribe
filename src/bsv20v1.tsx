@@ -496,7 +496,7 @@ function BSV20v1(props) {
                 _network === bsv.Networks.mainnet && (
                     <Box sx={{ mt: 2 }}>
                     <TextField
-                      label="Repeat (Max: 10000, Fee: 50 sats/mint)"
+                      label="Repeat (Max: 20000, Fee: 50 sats/mint)"
                       defaultValue={1}
                       variant="outlined"
                       required
