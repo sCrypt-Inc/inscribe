@@ -213,7 +213,7 @@ function Home() {
         )}
         {connected() && _tabIndex === 3 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v2 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer.current} />
+            <BSV20v2 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer.current} _network={_network} />
           </Box>
         )}
       </Box>

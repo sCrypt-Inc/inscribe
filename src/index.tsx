@@ -4,6 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import {BSV20Mint} from './contracts/bsv20Mint';
+import bsv20MintArtifact from '../artifacts/bsv20Mint.json';
+
+BSV20Mint.loadArtifact(bsv20MintArtifact);
+
 declare global {
   interface Window {
     gtag
