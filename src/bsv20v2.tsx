@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Container, Box, Typography, Button, TextField } from '@mui/material';
 import { OneSatApis, isBSV20v2 } from "scrypt-ord";
-import { Addr, MethodCallOptions, PandaSigner, toByteString } from "scrypt-ts";
+import { Addr, MethodCallOptions, PandaSigner, bsv, toByteString } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -11,7 +11,9 @@ import FormLabel from "@mui/material/FormLabel";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { BSV20Mint } from "./contracts/bsv20Mint";
+import Avatar  from "@mui/material/Avatar";
 
+import axios from "axios";
 function BSV20v2(props) {
 
     const { _ordiAddress, _signer, _network } = props
@@ -26,6 +28,15 @@ function BSV20v2(props) {
     const [_lim, setLim] = useState<bigint | undefined>(1000n)
     const [_icon, setIcon] = useState<string | undefined>(undefined)
     const [_tokenId, setTokenId] = useState<string | undefined>(undefined)
+    const [_available, setAvailable] = useState<bigint | undefined>(undefined)
+
+    const [_tokenIdStatus, setTokenIdStatus] = useState<'valid' | 'invalid'>(
+        'invalid'
+    );
+
+    const [_helperText, setHelperText] = useState<undefined | string>(
+        undefined
+    );
 
     const symbolOnChange = (e) => { 
         if (e.target.value) {
@@ -79,11 +90,31 @@ function BSV20v2(props) {
         setIcon(undefined);
       };
 
-    const clearMintInfo = (
+    const setTokenInfo = (
+        sym: string,
+        max: string,
+        dec: string,
+        lim: bigint,
+        available: bigint,
+        icon?: string
+        ) => {
+         
+        setSymbol(sym);
+        setMax(BigInt(max));
+        setDecimal(BigInt(dec));
+        setLim(lim);
+        setAvailable(available);
+        if(icon) {
+            setIcon(icon);
+        }
+        setTokenIdStatus('valid')
+    };
+
+    const clearTokenId = (
         ) => {
          
         setTokenId(undefined);
-
+        setTokenIdStatus('invalid')
     };
 
     const [_mintOrDeploy, setMintOrDeploy] = useState("mint");
@@ -93,9 +124,59 @@ function BSV20v2(props) {
       if (value === "deploy") {
         clearDeployInfo();
       } else {
-        clearMintInfo();
+        clearTokenId();
       }
       setResult(undefined);
+      setHelperText(undefined)
+    };
+
+    const mintTokenIdOnBlur = async () => {
+      if (_tokenId && isBSV20v2(_tokenId)) {
+        try {
+            
+          const info = await axios
+            .get(
+              `${
+                _network === bsv.Networks.mainnet
+                  ? "https://ordinals.gorillapool.io"
+                  : "https://testnet.ordinals.gorillapool.io"
+              }/api/inscriptions/${_tokenId}/latest?script=true`
+            )
+            .then((r) => r.data)
+            .catch((e) => {
+              console.error("get inscriptions by tokenid failed!");
+              return null;
+            });
+
+          if (info === null) {
+            setHelperText("No token found!")
+            clearTokenId()
+            return;
+          }
+
+          const { amt, dec, sym, icon } = info.origin?.data?.insc?.json || {};
+
+          const instance = BSV20Mint.fromUTXO({
+            txId: info.txid,
+            outputIndex: info.vout,
+            script: Buffer.from(info.script, "base64").toString("hex"),
+            satoshis: info.satoshis,
+          });
+
+
+          setTokenInfo(sym, amt, dec, instance.lim, instance.supply, icon);
+          setHelperText(undefined)
+        } catch (e) {
+            setHelperText((e as unknown as any).message || "Unknow error")
+            console.error('mintTokenIdOnBlur error:', e)
+        }
+      } else {
+        if(_tokenId && !isBSV20v2(_tokenId)) {
+            setHelperText("Invalid Token Id")
+        }
+
+        clearTokenId()
+      }
     };
 
     const decimalOnChange = (e) => {
@@ -106,7 +187,11 @@ function BSV20v2(props) {
         }
     }
 
-    const validInput = () => {
+    const validMintInput = () => {
+        return _tokenIdStatus === 'valid' && _tokenId !== undefined && _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
+    }
+
+    const validDeployInput = () => {
         return _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
     }
 
@@ -228,7 +313,7 @@ function BSV20v2(props) {
                     />
                     <TextField label="Decimal Precision" type="number" variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
                     <TextField label="Icon" variant="outlined" placeholder="1Sat Ordinals NFT origin" fullWidth sx={{ mt: 2 }} onChange={iconOnChange} />
-                    <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validInput()} onClick={deploy}>
+                    <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validDeployInput()} onClick={deploy}>
                         Deploy It!
                     </Button>
                 </Box>
@@ -236,8 +321,51 @@ function BSV20v2(props) {
 
             {_mintOrDeploy === "mint" &&(
                 <Box sx={{ mt: 3 }}>
-                    <TextField label="TokenId" variant="outlined" placeholder="TokenId"fullWidth required onChange={tokenIdOnChange} />
-                    <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !_tokenId} onClick={mint}>
+                    <TextField label="TokenId" variant="outlined" placeholder="TokenId" fullWidth
+                    required
+                    error={typeof _helperText === 'string'}
+                    helperText={_helperText}
+                    onChange={tokenIdOnChange}
+                    onBlur={mintTokenIdOnBlur} />
+
+                    {_tokenIdStatus === 'valid' && (
+                            <Box>
+                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                                Symbol: {_symbol?.toString() || "Null"}
+                                </Typography>
+                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                                Max Supply: {_max?.toString()}
+                                </Typography>
+                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                                Available Supply: {_available?.toString() || "0"}
+                                </Typography>
+                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                                Limit Per Mint: {_lim?.toString()}
+                                </Typography>
+                                <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>
+                                Decimal Precision: {_decimal?.toString()}
+                                </Typography>
+                                {
+                                    _icon &&(
+
+                                        <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                                            <Box>
+                                                <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>
+                                                Icon: 
+                                                </Typography>
+                                            </Box>
+                                            <Avatar alt="Icon" sx={{marginTop: 1, marginLeft: 0.6}} src={
+                                                `https://ordinals.gorillapool.io/content/${_icon}?fuzzy=false`
+                                            } />
+
+                                        </Box>
+
+
+                                    )
+                                }
+                            </Box>
+                    )}
+                    <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validMintInput()} onClick={mint}>
                         Mint It!
                     </Button>
                 </Box>
