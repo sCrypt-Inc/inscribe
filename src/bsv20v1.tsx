@@ -63,7 +63,7 @@ function BSV20v1(props) {
       if (_mintTick) {
         const info = await axios
           .get(`${_network === bsv.Networks.mainnet
-            ? "https://v3.ordinals.gorillapool.io" 
+            ? "https://ordinals.gorillapool.io" 
             : "https://testnet.ordinals.gorillapool.io"}/api/bsv20/tick/${_mintTick}`)
           .then((r) => r.data);
         console.log(info);
@@ -297,7 +297,7 @@ function BSV20v1(props) {
         const info = await axios
           .get(
             `${_network === bsv.Networks.mainnet
-            ? "https://v3.ordinals.gorillapool.io" 
+            ? "https://ordinals.gorillapool.io" 
             : "https://testnet.ordinals.gorillapool.io"}/api/bsv20/tick/${_deployTick}`
           )
           .then((r) => r.data);
