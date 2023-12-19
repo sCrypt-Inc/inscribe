@@ -5,7 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import {BSV20Mint} from './contracts/bsv20Mint';
-import bsv20MintArtifact from '../artifacts/bsv20Mint.json';
+import bsv20MintArtifact from '../public/bsv20Mint_release_desc.json';
 
 BSV20Mint.loadArtifact(bsv20MintArtifact);
 
