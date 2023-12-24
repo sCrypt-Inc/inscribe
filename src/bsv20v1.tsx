@@ -18,17 +18,20 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import { useAppProvider } from "./AppContext";
+import { dummyUTXO } from "./utils";
 
-import { useInterval } from "usehooks-ts";
 
 const serviceFeePerRepeat = 50;
 
 function BSV20v1(props) {
-  const { _ordiAddress, _signer, _payAddress, _network } = props;
-
-  const connected = () => {
-    return _ordiAddress !== undefined;
-  };
+  const { ordiAddress: _ordiAddress, 
+    price: _price, 
+    payAddress: _payAddress, 
+    network: _network,
+    feePerKb: _feePerKb,
+    signer: _signer,
+    connected } = useAppProvider();
 
   const MINT_TICK_TEXT_INVALID = "Invalid! Tick not found.";
   const MINT_TICK_TEXT_MINT_OUT = "Tick was already mint out!";
@@ -53,10 +56,9 @@ function BSV20v1(props) {
   const [_mintTick, setMintTick] = useState<string | undefined>(undefined);
 
   const [_isLoading, setLoading] = useState<boolean>(false);
-  const [_price, setPrice] = useState<number>(0);
+
   const [_cost, setCost] = useState<number>(0);
-  const [_feePerKb, setFeePerKb] = useState<number>(1);
-  const [_utxos, setUTXOs] = useState<UTXO[]>([]);
+
   const mintTickOnChange = (e) => setMintTick(e.target.value);
   const mintTickOnBlur = async () => {
     try {
@@ -142,7 +144,7 @@ function BSV20v1(props) {
   const repeatOnChange = (e) => {
     if (/^\d+$/.test(e.target.value)) {
       setRepeat(BigInt(e.target.value));
-      setCost(calcCost(_utxos, Number(e.target.value)));
+      setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], Number(e.target.value)));
     } else {
       setRepeat(undefined);
     }
@@ -164,6 +166,7 @@ function BSV20v1(props) {
       })
     );
 
+
     for (let i = 0; i < repeat; i++) {
       tx.addOutput(
         new bsv.Transaction.Output({
@@ -182,7 +185,7 @@ function BSV20v1(props) {
   }
 
   function calcCost(utxos: UTXO[], repeat: number) {
-    const tx = buildTx(utxos, _ordiAddress, _feePerKb, repeat);
+    const tx = buildTx(utxos, _ordiAddress!, _feePerKb, repeat);
     return tx.inputAmount - tx.getChangeAmount() + Number(repeat!);
   }
 
@@ -197,27 +200,18 @@ function BSV20v1(props) {
   const fire = async () => {
     try {
       setLoading(true);
-      const signer = _signer as PandaSigner;
-      const tx = buildTx(_utxos, _payAddress!, _feePerKb, Number(_repeat!));
-      const signedTx = await signer.signTransaction(tx);
+      const utxos = await _signer.provider!.listUnspent(_payAddress!);
+      const tx = buildTx(utxos, _payAddress!, _feePerKb, Number(_repeat!));
+      const signedTx = await _signer.signTransaction(tx);
       const response = await axios
         .post(`https://inscribe-api.scrypt.io/bsv20v1/batch_mint`, {
           raw: signedTx.toString(),
           tick: _mintTick,
           lim: _lim!.toString(),
           repeat: _repeat!.toString(),
-          addr: _ordiAddress.toString(),
+          addr: _ordiAddress!.toString(),
         })
         .then((r) => r.data);
-
-      setUTXOs([
-        {
-          satoshis: tx.outputs[tx.outputs.length - 1].satoshis,
-          txId: tx.id,
-          outputIndex: tx.outputs.length - 1,
-          script: bsv.Script.buildPublicKeyHashOut(_payAddress).toHex(),
-        },
-      ]);
 
       const historyTxs = JSON.parse(localStorage.getItem("history") || "[]");
 
@@ -351,61 +345,6 @@ function BSV20v1(props) {
     }
   };
 
-  useEffect(() => {
-    const signer = _signer as PandaSigner;
-
-    if (_payAddress) {
-      signer
-        .listUnspent(_payAddress)
-        .then((us) => {
-          setUTXOs(us || []);
-          setCost(calcCost(us, Number(_repeat || 1)));
-        })
-        .catch((e) => {
-          console.error("error", e);
-        });
-    }
-
-    signer
-      .provider!.getFeePerKb()
-      .then((fpkb) => {
-        setFeePerKb(fpkb);
-      })
-      .catch((e) => {
-        console.error("error", e);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch("https://api.whatsonchain.com/v1/bsv/main/exchangerate")
-      .then((res) => res.json())
-      .then((data) => {
-        setPrice(data?.rate || 0);
-      })
-      .catch((e) => {
-        console.error("error", e);
-      });
-  }, []);
-
-  useInterval(
-    () => {
-      const signer = _signer as PandaSigner;
-
-      if (_payAddress) {
-        signer
-          .listUnspent(_payAddress)
-          .then((us) => {
-            setUTXOs(us || []);
-            setCost(calcCost(us, Number(_repeat || 1)));
-          })
-          .catch((e) => {
-            console.error("error", e);
-          });
-      }
-    },
-    // Delay in milliseconds or null to stop it
-    3000
-  );
 
   return (
     <Container maxWidth="md">

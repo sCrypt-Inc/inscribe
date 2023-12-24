@@ -4,10 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-import {BSV20Mint} from './contracts/bsv20Mint';
-import bsv20MintArtifact from '../public/bsv20Mint_release_desc.json';
+import { AppProvider } from './AppContext';
 
-BSV20Mint.loadArtifact(bsv20MintArtifact);
 
 declare global {
   interface Window {
@@ -20,7 +18,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <AppProvider>
+      <App />
+    </AppProvider>
   </React.StrictMode>
 );
 

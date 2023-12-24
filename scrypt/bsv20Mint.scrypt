@@ -85,11 +85,11 @@ library Ordinal {
     return txidStr;
   }
   static function int2Str(int n) : bytes {
-    require(n < 10000000);
+    require(n < 100000000);
     bytes res = b'';
     bool done = false;
     int pow = 1;
-    loop (7) : i {
+    loop (8) : i {
       if (!done) {
         int denominator = pow;
         pow = pow * 10;
