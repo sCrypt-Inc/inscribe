@@ -1,0 +1,164 @@
+library Ordinal {
+  static function skipBytes(bytes b) : int {
+    int len = 0;
+    int ret = 0;
+    int header = unpack(b[0 : 1]);
+    if (header < 0x4c) {
+      len = header;
+      ret = 1 + len;
+    }
+    else if (header == 0x4c) {
+      len = Utils.fromLEUnsigned(b[1 : 2]);
+      ret = 1 + 1 + len;
+    }
+    else if (header == 0x4d) {
+      len = Utils.fromLEUnsigned(b[1 : 3]);
+      ret = 1 + 2 + len;
+    }
+    else if (header == 0x4e) {
+      len = Utils.fromLEUnsigned(b[1 : 5]);
+      ret = 1 + 4 + len;
+    }
+    else {
+      ret = -1;
+    }
+    return ret;
+  }
+  static function isP2PKHOrdinal(bytes script) : bool {
+    return (len(script) > 25 && Ordinal.isP2PKH(script[0 : 25]) && Ordinal.sizeOfOrdinal(script[25 : len(script)]) > 0);
+  }
+  static function isP2PKH(bytes script) : bool {
+    return (len(script) == 25 && script[0 : 3] == b'76a914' && script[23 : len(script)] == b'88ac');
+  }
+  static function removeInsciption(bytes scriptCode) : bytes {
+    int inscriptLen = Ordinal.sizeOfOrdinal(scriptCode);
+    if (inscriptLen > 0) {
+      scriptCode = scriptCode[inscriptLen : len(scriptCode)];
+    }
+    return scriptCode;
+  }
+  static function getInsciptionScript(bytes scriptCode) : bytes {
+    int inscriptLen = Ordinal.sizeOfOrdinal(scriptCode);
+    bytes ret = b'';
+    if (inscriptLen > 0) {
+      ret = scriptCode[0 : inscriptLen];
+    }
+    return ret;
+  }
+  static function sizeOfOrdinal(bytes script) : int {
+    int ret = -1;
+    int pos = 0;
+    if (len(script) >= 11 && script[pos : 7] == b'0063036f726451') {
+      pos += 7;
+      int contentTypeLen = Ordinal.skipBytes(script[pos : len(script)]);
+      if (contentTypeLen > 0) {
+        pos += contentTypeLen;
+        if (script[pos : pos + 1] == OpCode.OP_0) {
+          pos += 1;
+          int contentLen = Ordinal.skipBytes(script[pos : len(script)]);
+          if (contentLen > 0) {
+            pos += contentLen;
+            if (script[pos : pos + 1] == OpCode.OP_ENDIF) {
+              pos += 1;
+              ret = pos;
+            }
+          }
+        }
+      }
+    }
+    return ret;
+  }
+  static function createInsciption(bytes content, bytes contentType) : bytes {
+    return (b'0063036f726451' + VarIntWriter.writeBytes(contentType) + OpCode.OP_FALSE + VarIntWriter.writeBytes(content) + OpCode.OP_ENDIF);
+  }
+
+  static function txId2str(bytes txid) : bytes {
+    bytes txidStr = b'';
+    loop (32) : i {
+      int index = 32 - i - 1;
+      bytes char = txid[index : index + 1];
+      int cInt = Utils.fromLEUnsigned(char);
+      int left = cInt / 16 + (cInt / 16 > 9 ? 87 : 48);
+      int right = cInt % 16 + (cInt % 16 > 9 ? 87 : 48);
+      txidStr += pack(left) + pack(right);
+    }
+    return txidStr;
+  }
+  static function int2Str(int n) : bytes {
+    require(n < 10000000);
+    bytes res = b'';
+    bool done = false;
+    int pow = 1;
+    loop (7) : i {
+      if (!done) {
+        int denominator = pow;
+        pow = pow * 10;
+        if (n < denominator) {
+          done = true;
+        }
+        else {
+          int ithDigit = (n / denominator) % 10;
+          res = pack(48 + ithDigit) + res;
+        }
+      }
+    }
+
+    return n == 0 ? b'30' : res;
+  }
+}
+
+contract BSV20Mint {
+  @state
+  bytes id;
+  int max;
+  int dec;
+  bytes sym;
+  @state
+  int supply;
+  int lim;
+
+  constructor(bytes id, bytes sym, int max, int dec, int lim) {
+    this.max = max;
+    this.dec = dec;
+    this.id = id;
+    this.sym = sym;
+    require(this.max <= 18446744073709551615);
+    require(this.dec <= 18);
+
+    this.supply = max;
+    this.lim = lim;
+  }
+  function buildStateOutputFT(int amt) : bytes {
+    bytes stateScript = BSV20Mint.createTransferInsciption(this.id, amt) + Ordinal.removeInsciption(this.getStateScript());
+    return Utils.buildOutput(stateScript, 1);
+  }
+
+  static function buildTransferOutput(Ripemd160 address, bytes id, int amt) : bytes {
+    bytes transferScript = BSV20Mint.buildTransferScript(address, id, amt);
+    return Utils.buildOutput(transferScript, 1);
+  }
+  static function buildTransferScript(Ripemd160 address, bytes id, int amt) : bytes {
+    return (BSV20Mint.createTransferInsciption(id, amt) + Utils.buildPublicKeyHashScript(address));
+  }
+  static function createTransferInsciption(bytes id, int amt) : bytes {
+    bytes amtByteString = Ordinal.int2Str(amt);
+    bytes transferJSON = "{\"p\":\"bsv-20\",\"op\":\"transfer\",\"id\":\"" + id + "\",\"amt\":\"" + amtByteString + "\"}";
+    return Ordinal.createInsciption(transferJSON, "application/bsv-20");
+  }
+
+  public function mint(Ripemd160 dest, int amount, SigHashPreimage __scrypt_ts_txPreimage, int __scrypt_ts_changeAmount, Ripemd160 __scrypt_ts_changeAddress) {
+    require(Tx.checkPreimageSigHashType(__scrypt_ts_txPreimage, SigHashType(b'41')));
+    bytes txid = SigHash.outpoint(__scrypt_ts_txPreimage)[0 : 32];
+    this.id = this.id == b'' ? (Ordinal.txId2str(txid) + "_0") : this.id;
+    require(amount <= this.lim);
+    require(amount > 0);
+    this.supply -= amount;
+    require(this.supply >= 0);
+    bytes output0 = this.supply > 0 ? this.buildStateOutputFT(this.supply) : b'';
+
+    bytes output1 = BSV20Mint.buildTransferOutput(dest, this.id, amount);
+    bytes output2 = __scrypt_ts_changeAmount > 0 ? Utils.buildOutput(Utils.buildPublicKeyHashScript(__scrypt_ts_changeAddress), __scrypt_ts_changeAmount) : b'';
+
+    require(hash256(output0 + output1 + output2) == SigHash.hashOutputs(__scrypt_ts_txPreimage));
+  }
+}
