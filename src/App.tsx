@@ -170,14 +170,14 @@ function Home() {
   const [_tabIndex, setTabIndex] = useState(0);
 
   const tabOnChange = (e, tabIndex) => {
-    if (tabIndex == 0) {
+    if (tabIndex === 0) {
       <OrdinalImage />
-    } else if (tabIndex == 1) {
+    } else if (tabIndex === 1) {
       <OrdinalText />
-    } else if (tabIndex == 2) {
-      <BSV20v2 />
-    } else if (tabIndex == 3) {
+    } else if (tabIndex === 2) {
       <BSV20v1 />
+    } else if (tabIndex === 3) {
+      <BSV20v2 />
     }
     setTabIndex(tabIndex);
   };
@@ -192,8 +192,8 @@ function Home() {
           <Tabs value={_tabIndex} onChange={tabOnChange}>
             <Tab label="Image" disabled={!connected()} />
             <Tab label="Text" disabled={!connected()} />
-            <Tab label="BSV-20 v2" disabled={!connected()} />
             <Tab label="BSV-20 v1" disabled={!connected()} />
+            <Tab label="BSV-20 v2" disabled={!connected()} />
           </Tabs>
         </Grid>
         {connected() && _tabIndex === 0 && (
@@ -208,12 +208,12 @@ function Home() {
         )}
         {connected() && _tabIndex === 2 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v2 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <BSV20v1 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer.current} _network={_network} />
           </Box>
         )}
         {connected() && _tabIndex === 3 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v1 _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <BSV20v2 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer.current} />
           </Box>
         )}
       </Box>
@@ -221,20 +221,21 @@ function Home() {
         connected()
           ? ''
           : (
-             <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-    <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
-  </Box>
-  <br />
-  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
-    <Typography align="center">
-      Do not have a Panda Wallet ?
-    </Typography>
-    <br />
-    <Typography align="center">
-      👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mkpdopdllihjhemekgioagjbbfdboopi" style={{ color: '#FE9C2F' }}>Get it here</a>
-    </Typography>
-  </Box>
+
+            <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
+              </Box>
+              <br />
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
+                <Typography align="center">
+                  Do not have a Panda Wallet?
+                </Typography>
+                <br />
+                <Typography align="center">
+                  👉 <a href="https://chromewebstore.google.com/detail/panda-wallet/mlbnicldlpdimbjdcncnklfempedeipj" style={{ color: '#FE9C2F' }} target="_blank" rel="noreferrer">Get it here</a>
+                </Typography>
+              </Box>
               {
                 !_error
                   ? ''
@@ -245,8 +246,10 @@ function Home() {
       }
       <Box sx={{ mt: 5 }}>
         <Typography variant="body1" align="center">
+
           <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
           <a style={{ color: "#FE9C2F" }} href="https://youtu.be/f-7p7uryuCM?si=ypYzMVDY6xCAG8TT">Video Tutorial</a>
+
         </Typography>
       </Box>
     </div>

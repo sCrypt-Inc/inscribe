@@ -71,9 +71,7 @@ function BSV20v2(props) {
         }
 
         if (window.gtag) {
-            window.gtag('event', 'inscribe', {
-                'event_category': 'bsv20v2',
-            });
+            window.gtag('event', 'inscribe-bsv20v2');
         }
     }
 
@@ -87,13 +85,13 @@ function BSV20v2(props) {
             </Box>
             <Box>
                 <Typography variant="body1" align="center">
-                    <a style={{ color: "#FE9C2F" }} href="https://docs.1satordinals.com/bsv20#new-in-v2-tickerless-mode">what's new in v2</a>
+                    <a style={{ color: "#FE9C2F" }} href="https://docs.1satordinals.com/bsv20#new-in-v2-tickerless-mode" target="_blank" rel="noreferrer">what's new in v2</a>
                 </Typography>
             </Box>
             <Box sx={{ mt: 3 }}>
                 <TextField label="Symbol" variant="outlined" fullWidth required onChange={symbolOnChange} />
                 <TextField label="Amount" type="number" variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={amountOnChange} />
-                <TextField label="Decimal" type="number"  variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
+                <TextField label="Decimal" type="number" variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
                 <TextField label="Icon" variant="outlined" placeholder="1Sat Ordinals NFT origin" fullWidth sx={{ mt: 2 }} onChange={iconOnChange} />
                 <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validInput()} onClick={mint}>
                     Mint It!
