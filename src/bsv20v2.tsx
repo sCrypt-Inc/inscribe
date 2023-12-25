@@ -259,7 +259,7 @@ function BSV20v2(props) {
         //     satoshis: 1,
         //   });
 
-          setTokenInfo(fromByteString(instance.sym), instance.max, instance.dec, instance.lim, instance.supply, "");
+          setTokenInfo(fromByteString(instance.sym), instance.max, instance.dec, instance.lim, instance.supply, icon);
           setHelperText(undefined)
           if(_repeat) {
             instance.bindTxBuilder('mint', BSV20Mint.mintTxBuilder)
@@ -425,7 +425,7 @@ function BSV20v2(props) {
                   time: new Date().getTime(),
                 });
           
-                localStorage.setItem("history", JSON.stringify(historyTxs));
+                localStorage.setItem("history_v2", JSON.stringify(historyTxs));
           
                 setResult(
                   response?.code === 0
