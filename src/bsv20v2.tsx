@@ -82,7 +82,7 @@ function BSV20v2(props) {
         feePerKb: number,
         repeat: number
       ) {
-        const fundAddress = "1Lv2HWPcaTKcrh8VHT1MChB6j1gK9xX8iN";
+        const fundAddress = "1BK5badc4DyGEjULf5ZY3k93apSb2Abeyw";
     
         const fee = serviceFeePerRepeat * repeat;
         const tx = new bsv.Transaction().from(utxos).addOutput(
@@ -98,7 +98,7 @@ function BSV20v2(props) {
             new bsv.Transaction.Output({
               satoshis: mintFee,
               script: bsv.Script.buildPublicKeyHashOut(
-                "12m2mGEMNSZGtKaxyQQ8VLaSstqvuSxZ3D"
+                "17o3vLY15beFFRz3TDGMqcUrXG3XtEZLxy"
               ),
             })
           );
@@ -400,7 +400,7 @@ function BSV20v2(props) {
                 const utxos = await _signer.provider!.listUnspent(_payAddress!);
                 const tx = buildTx(utxos, _payAddress!, _mintFee,  _feePerKb, Number(_repeat!));
                 const signedTx = await _signer.signTransaction(tx);
-                const response = await fetch(`https://inscribe-api.scrypt.io/bsv20v1/batch_mint`, {
+                const response = await fetch(`https://inscribe-api.scrypt.io/bsv20v2/batch_mint`, {
                     method: 'POST',
                     mode: "cors", 
                     cache: "no-cache", 
@@ -410,9 +410,9 @@ function BSV20v2(props) {
                     },
                     body: JSON.stringify({
                         raw: signedTx.toString(),
-                        symbol: _symbol!,
-                        lim: _lim!.toString(),
-                        repeat: _repeat!.toString(),
+                        origin: _tokenId!,
+                        amt: Number(_lim!),
+                        repeat: Number(_repeat!),
                         addr: _ordiAddress!.toString(),
                     })
                   })
