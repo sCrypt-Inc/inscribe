@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Container,
   Box,
@@ -7,7 +7,6 @@ import {
   TextField,
   Backdrop,
   CircularProgress,
-  Chip,
 } from "@mui/material";
 import { Addr, PandaSigner, toByteString, bsv, UTXO } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
@@ -19,17 +18,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { useAppProvider } from "./AppContext";
-import { dummyUTXO } from "./utils";
 
-
-const serviceFeePerRepeat = 50;
 
 function BSV20v1(props) {
   const { ordiAddress: _ordiAddress, 
-    price: _price, 
-    payAddress: _payAddress, 
     network: _network,
-    feePerKb: _feePerKb,
     signer: _signer,
     connected } = useAppProvider();
 
@@ -56,8 +49,6 @@ function BSV20v1(props) {
   const [_mintTick, setMintTick] = useState<string | undefined>(undefined);
 
   const [_isLoading, setLoading] = useState<boolean>(false);
-
-  const [_cost, setCost] = useState<number>(0);
 
   const mintTickOnChange = (e) => setMintTick(e.target.value);
   const mintTickOnBlur = async () => {
@@ -104,6 +95,7 @@ function BSV20v1(props) {
 
   const mint = async () => {
     try {
+      setLoading(true)
       const signer = _signer as PandaSigner;
       const instance = new BSV20V1P2PKH(
         toByteString(_mintTick!, true),
@@ -119,11 +111,10 @@ function BSV20v1(props) {
     } catch (e: any) {
       console.error("error", e);
       setResult(`${e.message ?? e}`);
+    } finally {
+      setLoading(false)
     }
 
-    if (window.gtag) {
-      window.gtag("event", "inscribe-bsv20v1-mint");
-    }
   };
 
   const [_max, setMax] = useState<bigint | undefined>(undefined);
@@ -140,110 +131,6 @@ function BSV20v1(props) {
     setDec(dec);
   };
 
-  const [_repeat, setRepeat] = useState<bigint | undefined>(1n);
-  const repeatOnChange = (e) => {
-    if (/^\d+$/.test(e.target.value)) {
-      setRepeat(BigInt(e.target.value));
-      setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], Number(e.target.value)));
-    } else {
-      setRepeat(undefined);
-    }
-  };
-
-  function buildTx(
-    utxos: UTXO[],
-    changeAddress: bsv.Address,
-    feePerKb: number,
-    repeat: number
-  ) {
-    const fundAddress = "1Lv2HWPcaTKcrh8VHT1MChB6j1gK9xX8iN";
-
-    const fee = serviceFeePerRepeat * repeat;
-    const tx = new bsv.Transaction().from(utxos).addOutput(
-      new bsv.Transaction.Output({
-        script: bsv.Script.fromAddress(fundAddress),
-        satoshis: fee,
-      })
-    );
-
-
-    for (let i = 0; i < repeat; i++) {
-      tx.addOutput(
-        new bsv.Transaction.Output({
-          satoshis: 2,
-          script: bsv.Script.buildPublicKeyHashOut(
-            "12m2mGEMNSZGtKaxyQQ8VLaSstqvuSxZ3D"
-          ),
-        })
-      );
-    }
-
-    tx.change(changeAddress);
-    tx.feePerKb(feePerKb);
-
-    return tx;
-  }
-
-  function calcCost(utxos: UTXO[], repeat: number) {
-    const tx = buildTx(utxos, _ordiAddress!, _feePerKb, repeat);
-    return tx.inputAmount - tx.getChangeAmount() + Number(repeat!);
-  }
-
-  const validFireInput = () =>
-    validMintTick() &&
-    _repeat !== undefined &&
-    _repeat > 0n &&
-    _repeat <= 20000n! &&
-    _ordiAddress !== undefined &&
-    _payAddress !== undefined;
-
-  const fire = async () => {
-    try {
-      setLoading(true);
-      const utxos = await _signer.provider!.listUnspent(_payAddress!);
-      const tx = buildTx(utxos, _payAddress!, _feePerKb, Number(_repeat!));
-      const signedTx = await _signer.signTransaction(tx);
-      const response = await axios
-        .post(`https://inscribe-api.scrypt.io/bsv20v1/batch_mint`, {
-          raw: signedTx.toString(),
-          tick: _mintTick,
-          lim: _lim!.toString(),
-          repeat: _repeat!.toString(),
-          addr: _ordiAddress!.toString(),
-        })
-        .then((r) => r.data);
-
-      const historyTxs = JSON.parse(localStorage.getItem("history") || "[]");
-
-      historyTxs.push({
-        tx: tx.id,
-        time: new Date().getTime(),
-      });
-
-      localStorage.setItem("history", JSON.stringify(historyTxs));
-
-      setResult(
-        response?.code === 0
-          ? `Order Tx: ${tx.id}`
-          : `Error ${response.code}: ${response.message}`
-      );
-    } catch (e: any) {
-      console.error("error", e);
-      setResult(`${e.message ?? e}`);
-    } finally {
-      setLoading(false);
-    }
-
-    if (window.gtag) {
-      const fee = serviceFeePerRepeat * Number(_repeat!);
-      window.gtag("event", "inscribe-bsv20v1-batch-mint", {
-        tick: _mintTick,
-        amt: _lim!.toString(),
-        repeat: _repeat!.toString(),
-        fee: fee!.toString(),
-      });
-    }
-  };
 
   const [_result, setResult] = useState<string | undefined>(undefined);
 
@@ -340,9 +227,6 @@ function BSV20v1(props) {
       setResult(`${e.message ?? e}`);
     }
 
-    if (window.gtag) {
-      window.gtag("event", "inscribe-bsv20v1-deploy");
-    }
   };
 
 
@@ -409,7 +293,6 @@ function BSV20v1(props) {
                 </Typography>
               </Box>
             )}
-          {_network === bsv.Networks.testnet && (
             <Box sx={{ mt: 2 }}>
               <TextField
                 label="Amount"
@@ -429,47 +312,6 @@ function BSV20v1(props) {
                 Mint It!
               </Button>
             </Box>
-          )}
-          
-            {
-                _network === bsv.Networks.mainnet && (
-                    <Box sx={{ mt: 2 }}>
-                    <TextField
-                      label="Repeat (Max: 20000, Fee: 50 sats/mint)"
-                      defaultValue={1}
-                      variant="outlined"
-                      required
-                      fullWidth
-                      onChange={repeatOnChange}
-                      disabled={!validMintTick()}
-                    />
-        
-                    <Box sx={{ mt: 2, display: "flex", flexDirection: "row" }}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        sx={{ mt: 2 }}
-                        disabled={!connected() || !validFireInput()}
-                        onClick={fire}
-                      >
-                        Fire!
-                      </Button>
-                      {_cost > 0 && validFireInput() ? (
-                        <Typography color="primary" sx={{ mt: 3, ml: 3 }}>
-                          {_price > 0
-                            ? `Total Cost: ${_cost} sats, $${(
-                                (_price * _cost) /
-                                100000000
-                              ).toFixed(5)}USD `
-                            : `Total Cost: ${_cost} sats`}
-                        </Typography>
-                      ) : (
-                        <></>
-                      )}
-                    </Box>
-                  </Box>
-                )
-            }
         </Box>
       )}
       {_mintOrDeploy === "deploy" && (
