@@ -5,14 +5,15 @@ import { Addr, PandaSigner } from 'scrypt-ts';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 import { Container, Box, Typography, Button } from '@mui/material';
 import { Navigate } from 'react-router-dom';
+import { useAppProvider } from './AppContext';
 
 function OrdinalImage(props) {
 
-  const { _ordiAddress, _signer } = props
+  const { ordiAddress: _ordiAddress,
+    signer: _signer,
+    connected
+  } = useAppProvider();
 
-  const connected = () => {
-    return _ordiAddress !== undefined
-  }
 
   const [images, setImages] = useState<ImageListType>([])
 

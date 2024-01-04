@@ -4,10 +4,10 @@ import { createTheme, ThemeProvider } from '@mui/system';
 import OrdinalImage from './ordinalImage';
 import BSV20v2 from "./bsv20v2";
 import BSV20v1 from "./bsv20v1";
-import { useEffect, useRef, useState } from "react";
-import { PandaSigner, bsv } from "scrypt-ts";
-import { OrdiProvider } from "scrypt-ord";
+import { useState } from "react";
+
 import OrdinalText from "./ordinalText";
+import { useAppProvider } from "./AppContext";
 
 const theme = createTheme({
   palette: {
@@ -135,37 +135,13 @@ const theme = createTheme({
 });
 
 function Home() {
-  const [_payAddress, setPayAddress] = useState<bsv.Address | undefined>(undefined)
-  const [_ordiAddress, setOrdiAddress] = useState<bsv.Address | undefined>(undefined)
-  const [_network, setNetwork] = useState<bsv.Networks.Network | undefined>(undefined)
-  const [_error, setError] = useState<string | undefined>(undefined)
-
-  const _signer = useRef<PandaSigner | undefined>(undefined)
-
-  useEffect(() => {
-    _signer.current = new PandaSigner(new OrdiProvider())
-  }, [])
-
-  const connect = async () => {
-    try {
-      const signer = _signer.current as PandaSigner
-      const { isAuthenticated, error } = await signer.requestAuth()
-      if (!isAuthenticated) {
-        throw new Error(error)
-      }
-      setPayAddress(await signer.getDefaultAddress())
-      setOrdiAddress(await signer.getOrdAddress())
-      setNetwork(await signer.getNetwork())
-      setError(undefined)
-    } catch (e: any) {
-      console.error('error', e)
-      setError(`${e.message ?? e}`)
-    }
-  }
-
-  const connected = () => {
-    return _network !== undefined && _payAddress !== undefined && _ordiAddress !== undefined
-  };
+  const { ordiAddress: _ordiAddress, 
+    payAddress: _payAddress, 
+    network: _network,
+    signer: _signer,
+    connect,
+    error: _error,
+    connected } = useAppProvider();
 
   const [_tabIndex, setTabIndex] = useState(0);
 
@@ -198,22 +174,22 @@ function Home() {
         </Grid>
         {connected() && _tabIndex === 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <OrdinalImage _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <OrdinalImage _ordiAddress={_ordiAddress} _signer={_signer} />
           </Box>
         )}
         {connected() && _tabIndex === 1 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <OrdinalText _ordiAddress={_ordiAddress} _signer={_signer.current} />
+            <OrdinalText _ordiAddress={_ordiAddress} _signer={_signer} />
           </Box>
         )}
         {connected() && _tabIndex === 2 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v1 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer.current} _network={_network} />
+            <BSV20v1 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer} _network={_network} />
           </Box>
         )}
         {connected() && _tabIndex === 3 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <BSV20v2 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer.current} />
+            <BSV20v2 _ordiAddress={_ordiAddress} _payAddress={_payAddress} _signer={_signer} _network={_network} />
           </Box>
         )}
       </Box>
