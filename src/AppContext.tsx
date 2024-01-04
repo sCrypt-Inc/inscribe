@@ -96,6 +96,34 @@ export const AppProvider = (props: AppProviderProps) => {
   }, []);
 
 
+  useEffect(() => {
+
+    const id = setTimeout(() => {
+      signer.current.isAuthenticated().then(isAuthenticated => {
+
+        if(isAuthenticated) {
+  
+          signer.current.getDefaultAddress().then(address => {
+            setPayAddress(address);
+          })
+  
+          signer.current.getOrdAddress().then(address => {
+            setOrdiAddress(address);
+          })
+  
+          signer.current.getNetwork().then(network => {
+            setNetwork(network);
+          })
+        }
+      })
+    }, 500)
+
+    return () => clearTimeout(id);
+    
+  }, []);
+
+
+
   const connected = () => {
     return _network !== null && _payAddress !== null && _ordiAddress !== null
   };
