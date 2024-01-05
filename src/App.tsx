@@ -221,6 +221,7 @@ function Home() {
         connected()
           ? ''
           : (
+
             <Container maxWidth="sm" sx={{ height: '20vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                 <Button variant="contained" color="primary" onClick={connect} disabled={connected()}>Connect Wallet</Button>
@@ -245,8 +246,10 @@ function Home() {
       }
       <Box sx={{ mt: 5 }}>
         <Typography variant="body1" align="center">
-          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/-Ete5ZQma8Q" target="_blank" rel="noreferrer">Video Tutorial</a>&nbsp; &nbsp;
-          <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe" target="_blank" rel="noreferrer">Source at Github</a>
+
+          <a style={{ color: "#FE9C2F" }} href="https://github.com/sCrypt-Inc/inscribe">Source at Github</a>&nbsp; &nbsp;
+          <a style={{ color: "#FE9C2F" }} href="https://youtu.be/f-7p7uryuCM?si=ypYzMVDY6xCAG8TT">Video Tutorial</a>
+
         </Typography>
       </Box>
     </div>
