@@ -216,6 +216,8 @@ function BSV20v2(props) {
     const mintTokenIdOnBlur = async () => {
       if (_tokenId && isBSV20v2(_tokenId)) {
         try {
+          setTokenIdStatus("invalid")
+          setHelperText(undefined)
           const info = await fetch(
               `${
                 _network === bsv.Networks.mainnet
@@ -223,7 +225,12 @@ function BSV20v2(props) {
                   : "https://testnet.ordinals.gorillapool.io"
               }/api/inscriptions/${_tokenId}/latest?script=true`
             )
-            .then((r) => r.json())
+            .then((r) => {
+                if(r.status === 200) {
+                    return r.json()
+                } 
+                return null;
+            })
             .catch((e) => {
               console.error("get inscriptions by tokenid failed!");
               return null;
@@ -276,7 +283,7 @@ function BSV20v2(props) {
                 } as MethodCallOptions<BSV20Mint>
             )
 
-            const mintFee = tx.getFee();
+            const mintFee = tx.getFee() + 1;
 
             setMintFee(mintFee);
 
@@ -305,15 +312,15 @@ function BSV20v2(props) {
     }
 
     const validMintInput = () => {
-        return _tokenIdStatus === 'valid' && _tokenId !== undefined && _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
+        return _isLoading === false && _tokenIdStatus === 'valid' && _tokenId !== undefined && _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
     }
 
     const validMintInputRepeat = () => {
-        return _repeat !== undefined && _tokenIdStatus === 'valid' && _tokenId !== undefined && _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
+        return _isLoading === false && _repeat !== undefined && _repeat <= 20000n && _tokenIdStatus === 'valid' && _tokenId !== undefined && _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
     }
 
     const validDeployInput = () => {
-        return _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
+        return _isLoading === false &&  _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
     }
 
     const [_result, setResult] = useState<string | undefined>(undefined)
@@ -397,6 +404,7 @@ function BSV20v2(props) {
         try {
             try {
                 setLoading(true);
+                await _signer.connect()
                 const utxos = await _signer.provider!.listUnspent(_payAddress!);
                 const tx = buildTx(utxos, _payAddress!, _mintFee,  _feePerKb, Number(_repeat!));
                 const signedTx = await _signer.signTransaction(tx);
