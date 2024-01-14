@@ -170,9 +170,7 @@ function BSV20v2(props) {
         setDecimal(BigInt(dec));
         setLim(lim);
         setAvailable(available);
-        if(icon) {
-            setIcon(icon);
-        }
+        setIcon(icon);
         setTokenIdStatus('valid')
     };
 
