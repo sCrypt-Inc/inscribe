@@ -3,10 +3,15 @@ import { Container, Box, Typography, Button, TextField } from "@mui/material";
 import { OrdiNFTP2PKH } from "scrypt-ord";
 import { Addr, PandaSigner } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
+import { useAppProvider } from "./AppContext";
 
 function OrdinalText(props) {
-  const { _ordiAddress, _signer } = props;
-  const connected = () => _ordiAddress !== undefined;
+
+  const { ordiAddress: _ordiAddress,
+    signer: _signer,
+    connected
+  } = useAppProvider();
+
   const [result, setResult] = useState<string | undefined>(undefined);
 
   const mint = async () => {
