@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Container, Box, Typography, Button, TextField } from '@mui/material';
-import { OneSatApis, isBSV20v2 } from "scrypt-ord";
+import { OneSatApis, Ordinal, isBSV20v2 } from "scrypt-ord";
 import { Addr, DummyProvider, MethodCallOptions, PandaSigner, TestWallet, UTXO, bsv, fromByteString, toByteString } from "scrypt-ts";
 import { Navigate } from "react-router-dom";
 import Radio from "@mui/material/Radio";
@@ -240,7 +240,16 @@ function BSV20v2(props) {
             return;
           }
 
-          console.log('info', info)
+
+
+          const script = bsv.Script.fromHex(Buffer.from(info.script, "base64").toString("hex"));
+
+
+          if(Ordinal.isOrdinalP2PKHV2(script)) {
+            setHelperText("Mint out, no available token!")
+            clearTokenId();
+            return;
+          }
 
           const { amt, sym, icon } = info.origin?.data?.insc?.json || {};
 
@@ -251,7 +260,7 @@ function BSV20v2(props) {
           const instance = BSV20Mint.fromUTXO({
             txId: info.txid,
             outputIndex: info.vout,
-            script: Buffer.from(info.script, "base64").toString("hex"),
+            script: script.toHex(),
             satoshis: info.satoshis,
           });
 
