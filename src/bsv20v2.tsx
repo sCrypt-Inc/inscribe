@@ -211,103 +211,150 @@ function BSV20v2(props) {
         return fetch(`/${bsv20Mint_release_desc}`).then(res => res.json());
     }
 
-    const mintTokenIdOnBlur = async () => {
-      if (_tokenId && isBSV20v2(_tokenId)) {
-        try {
-          setTokenIdStatus("invalid")
-          setHelperText(undefined)
-          const info = await fetch(
-              `${
-                _network === bsv.Networks.mainnet
-                  ? "https://ordinals.gorillapool.io"
-                  : "https://testnet.ordinals.gorillapool.io"
-              }/api/inscriptions/${_tokenId}/latest?script=true`
-            )
-            .then((r) => {
-                if(r.status === 200) {
-                    return r.json()
-                } 
+    async function getTokenInfo(tokenId: string) {
+        if(_network === bsv.Networks.mainnet) {
+            const info = await fetch(
+                `https://inscribe-api.scrypt.io/bsv20v2/origins/${_tokenId}`
+              )
+              .then((r) => {
+                  if(r.status === 200) {
+                      return r.json()
+                  } 
+                  return null;
+              })
+              .catch((e) => {
+                console.error("get inscriptions by tokenid failed!");
                 return null;
-            })
-            .catch((e) => {
-              console.error("get inscriptions by tokenid failed!");
-              return null;
-            });
-
-          if (info === null) {
-            setHelperText("No token found!")
-            clearTokenId()
-            return;
-          }
-
-
-
-          const script = bsv.Script.fromHex(Buffer.from(info.script, "base64").toString("hex"));
-
-
-          if(Ordinal.isOrdinalP2PKHV2(script)) {
-            setHelperText("Mint out, no available token!")
-            clearTokenId();
-            return;
-          }
-
-          const { amt, sym, icon } = info.origin?.data?.insc?.json || {};
-
+              });
   
-          const artifact = await fetchArtifact(BigInt(amt || 21000000));
-          BSV20Mint.loadArtifact(artifact)
+            if (info === null) {
+              setHelperText("No token found!")
+              clearTokenId()
+              return null;
+            }
 
-          const instance = BSV20Mint.fromUTXO({
-            txId: info.txid,
-            outputIndex: info.vout,
-            script: script.toHex(),
-            satoshis: info.satoshis,
-          });
+            if(info.code !== 0) {
+              setHelperText(info.message || "Unknow error!")
+              clearTokenId()
+              return null;
+            }
 
-        // const tx = await _signer.provider!.getTransaction("a05ebd6368ee8cc3112497aa099bcf274849cae456e2742244b8e6e5ad6e8e39")
+            return info;
+        } else {
+            const info = await fetch(
+                `https://testnet.ordinals.gorillapool.io/api/inscriptions/${_tokenId}/latest?script=true`
+              )
+              .then((r) => {
+                  if(r.status === 200) {
+                      return r.json()
+                  } 
+                  return null;
+              })
+              .catch((e) => {
+                console.error("get inscriptions by tokenid failed!");
+                return null;
+              });
+  
+            if (info === null) {
+              setHelperText("No token found!")
+              clearTokenId()
+              return null;
+            }
+  
+  
+  
+            const script = bsv.Script.fromHex(Buffer.from(info.script, "base64").toString("hex"));
+  
+  
+            if(Ordinal.isOrdinalP2PKHV2(script)) {
+              setHelperText("Mint out, no available token!")
+              clearTokenId();
+              return null;
+            }
+  
+            const { amt, sym, icon } = info.origin?.data?.insc?.json || {};
 
-        // const instance = BSV20Mint.fromUTXO({
-        //     txId: tx.id,
-        //     outputIndex: 0,
-        //     script: tx.outputs[0].script.toHex(),
-        //     satoshis: 1,
-        //   });
+            return {
+                utxo: {
+                    script: script.toHex(),
+                    txid: info.txid,
+                    vout: info.vout,
+                    satoshis: info.satoshis
+                },
+                max_supply: amt,
+                icon
+            }
+        }
+    }
 
-          setTokenInfo(fromByteString(instance.sym), instance.max, instance.dec, instance.lim, instance.supply, icon);
-          setHelperText(undefined)
-          if(_repeat) {
-            instance.bindTxBuilder('mint', BSV20Mint.mintTxBuilder)
+    const mintTokenIdOnBlur = async () => {
 
-            await instance.connect(new TestWallet(bsv.PrivateKey.fromRandom(bsv.Networks.testnet), 
-                new DummyProvider()))
-
-            
-            const {tx} = await instance.methods.mint(
-                Addr(_ordiAddress!.toByteString()),
-                instance.lim,
-                {
-                    partiallySigned: true
-                } as MethodCallOptions<BSV20Mint>
-            )
-
-            const mintFee = tx.getFee() + 1;
-
-            setMintFee(mintFee);
-
-            setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], mintFee, Number(_repeat)));
+        if (_tokenId && isBSV20v2(_tokenId)) {
+            try {
+              setTokenIdStatus("invalid")
+              setHelperText(undefined)
+    
+              
+              const info = await getTokenInfo(_tokenId);
+              
+              const utxo = info.utxo;
+    
+              const script = bsv.Script.fromHex(utxo.script);
+    
+              if(Ordinal.isOrdinalP2PKHV2(script)) {
+                setHelperText("Mint out, no available token!")
+                clearTokenId();
+                return;
+              }
+    
+              const { max_supply, icon} = info || {};
+    
+              const artifact = await fetchArtifact(BigInt(max_supply || 21000000));
+              BSV20Mint.loadArtifact(artifact)
+    
+              const instance = BSV20Mint.fromUTXO({
+                txId: utxo.txid,
+                outputIndex: utxo.vout,
+                script: utxo.script,
+                satoshis: utxo.satoshis,
+              });
+    
+              setTokenInfo(fromByteString(instance.sym), instance.max, instance.dec, instance.lim, instance.supply, icon);
+              setHelperText(undefined)
+              if(_repeat) {
+                instance.bindTxBuilder('mint', BSV20Mint.mintTxBuilder)
+    
+                await instance.connect(new TestWallet(bsv.PrivateKey.fromRandom(bsv.Networks.testnet), 
+                    new DummyProvider()))
+    
+                
+                const {tx} = await instance.methods.mint(
+                    Addr(_ordiAddress!.toByteString()),
+                    instance.lim,
+                    {
+                        partiallySigned: true
+                    } as MethodCallOptions<BSV20Mint>
+                )
+    
+                const mintFee = tx.getFee() + 1;
+    
+                setMintFee(mintFee);
+    
+                setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], mintFee, Number(_repeat)));
+              }
+    
+            } catch (e) {
+                setHelperText((e as unknown as any).message || "Unknow error")
+                console.error('mintTokenIdOnBlur error:', e)
+            }
+          } else {
+            if(_tokenId && !isBSV20v2(_tokenId)) {
+                setHelperText("Invalid Token Id")
+            }
+    
+            clearTokenId()
           }
-
-        } catch (e) {
-            setHelperText((e as unknown as any).message || "Unknow error")
-            console.error('mintTokenIdOnBlur error:', e)
-        }
-      } else {
-        if(_tokenId && !isBSV20v2(_tokenId)) {
-            setHelperText("Invalid Token Id")
-        }
-
-        clearTokenId()
-      }
+      
     };
 
     const decimalOnChange = (e) => {
