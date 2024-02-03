@@ -336,7 +336,8 @@ function BSV20v2(props) {
                     } as MethodCallOptions<BSV20Mint>
                 )
     
-                const mintFee = tx.getFee() + 1;
+                const mintFee = tx.getFee() + 2;
+
     
                 setMintFee(mintFee);
     
