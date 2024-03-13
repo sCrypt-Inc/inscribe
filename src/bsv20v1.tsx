@@ -105,6 +105,8 @@ function BSV20v1(props) {
   const mint = async () => {
     try {
       const signer = _signer as PandaSigner;
+      await signer.requestAuth();
+
       const instance = new BSV20V1P2PKH(
         toByteString(_mintTick!, true),
         _max!,

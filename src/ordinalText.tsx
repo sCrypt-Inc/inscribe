@@ -17,6 +17,7 @@ function OrdinalText(props) {
   const mint = async () => {
     try {
       const signer = _signer as PandaSigner;
+      await signer.requestAuth()
 
       const value = text.current?.value;
       if (value !== undefined) {

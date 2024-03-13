@@ -12,7 +12,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { BSV20Mint } from "./contracts/bsv20Mint";
 
-import Avatar  from "@mui/material/Avatar";
+import Avatar from "@mui/material/Avatar";
 
 import { useAppProvider } from "./AppContext";
 import { dummyUTXO } from "./utils";
@@ -32,7 +32,7 @@ function BSV20v2(props) {
 
     const [_mintFee, setMintFee] = useState<number>(20)
 
-    
+
     const [_tokenIdStatus, setTokenIdStatus] = useState<'valid' | 'invalid'>(
         'invalid'
     );
@@ -41,7 +41,7 @@ function BSV20v2(props) {
         undefined
     );
 
-    const symbolOnChange = (e) => { 
+    const symbolOnChange = (e) => {
         if (e.target.value) {
             setSymbol(e.target.value)
         } else {
@@ -49,24 +49,24 @@ function BSV20v2(props) {
         }
     }
 
-    const { ordiAddress: _ordiAddress, 
-        price: _price, 
-        payAddress: _payAddress, 
+    const { ordiAddress: _ordiAddress,
+        price: _price,
+        payAddress: _payAddress,
         network: _network,
         feePerKb: _feePerKb,
         signer: _signer,
-        connected} = useAppProvider();
+        connected } = useAppProvider();
 
     const [_cost, setCost] = useState<number>(0);
 
     const [_repeat, setRepeat] = useState<bigint | undefined>(1n);
     const repeatOnChange = (e) => {
-      if (/^\d+$/.test(e.target.value)) {
-        setRepeat(BigInt(e.target.value));
-        setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], _mintFee, Number(e.target.value)));
-      } else {
-        setRepeat(undefined);
-      }
+        if (/^\d+$/.test(e.target.value)) {
+            setRepeat(BigInt(e.target.value));
+            setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], _mintFee, Number(e.target.value)));
+        } else {
+            setRepeat(undefined);
+        }
     };
 
     function calcCost(utxos: UTXO[], mintFee: number, repeat: number) {
@@ -81,34 +81,34 @@ function BSV20v2(props) {
         mintFee: number,
         feePerKb: number,
         repeat: number
-      ) {
+    ) {
         const fundAddress = "1BK5badc4DyGEjULf5ZY3k93apSb2Abeyw";
-    
+
         const fee = serviceFeePerRepeat * repeat;
         const tx = new bsv.Transaction().from(utxos).addOutput(
-          new bsv.Transaction.Output({
-            script: bsv.Script.fromAddress(fundAddress),
-            satoshis: fee,
-          })
+            new bsv.Transaction.Output({
+                script: bsv.Script.fromAddress(fundAddress),
+                satoshis: fee,
+            })
         );
-    
+
 
         for (let i = 0; i < repeat; i++) {
-          tx.addOutput(
-            new bsv.Transaction.Output({
-              satoshis: mintFee,
-              script: bsv.Script.buildPublicKeyHashOut(
-                "17o3vLY15beFFRz3TDGMqcUrXG3XtEZLxy"
-              ),
-            })
-          );
+            tx.addOutput(
+                new bsv.Transaction.Output({
+                    satoshis: mintFee,
+                    script: bsv.Script.buildPublicKeyHashOut(
+                        "17o3vLY15beFFRz3TDGMqcUrXG3XtEZLxy"
+                    ),
+                })
+            );
         }
 
         console.log('changeAddress', changeAddress)
-    
+
         tx.change(changeAddress);
         tx.feePerKb(feePerKb);
-    
+
         return tx;
     }
 
@@ -147,14 +147,14 @@ function BSV20v2(props) {
 
 
     const clearDeployInfo = (
-      ) => {
-       
+    ) => {
+
         setSymbol(undefined);
         setMax(undefined);
         setDecimal(undefined);
         setLim(undefined);
         setIcon(undefined);
-      };
+    };
 
     const setTokenInfo = (
         sym: string,
@@ -163,8 +163,8 @@ function BSV20v2(props) {
         lim: bigint,
         available: bigint,
         icon?: string
-        ) => {
-         
+    ) => {
+
         setSymbol(sym);
         setMax(max / BigInt(Math.pow(10, Number(dec))));
         setDecimal(BigInt(dec));
@@ -175,34 +175,34 @@ function BSV20v2(props) {
     };
 
     const clearTokenId = (
-        ) => {
-         
+    ) => {
+
         setTokenId(undefined);
         setTokenIdStatus('invalid')
     };
 
     const [_mintOrDeploy, setMintOrDeploy] = useState("mint");
     const mintOrDeployOnChange = (e) => {
-      const value = e.target.value as string;
-      setMintOrDeploy(value);
-      if (value === "deploy") {
-        clearDeployInfo();
-      } else {
-        clearTokenId();
-      }
-      setResult(undefined);
-      setHelperText(undefined)
+        const value = e.target.value as string;
+        setMintOrDeploy(value);
+        if (value === "deploy") {
+            clearDeployInfo();
+        } else {
+            clearTokenId();
+        }
+        setResult(undefined);
+        setHelperText(undefined)
     };
 
     const fetchArtifact = async (max: bigint) => {
 
         let bsv20Mint_release_desc = "";
-      
-        if(max < 100000000n) {
+
+        if (max < 100000000n) {
             bsv20Mint_release_desc = "bsv20Mint_release_desc_8.json"
-        } else if(max < 1000000000000n) {
+        } else if (max < 1000000000000n) {
             bsv20Mint_release_desc = "bsv20Mint_release_desc_12.json"
-        } else if(max < 10000000000000000n) {
+        } else if (max < 10000000000000000n) {
             bsv20Mint_release_desc = "bsv20Mint_release_desc_16.json"
         } else {
             bsv20Mint_release_desc = "bsv20Mint_release_desc_20.json"
@@ -212,66 +212,66 @@ function BSV20v2(props) {
     }
 
     async function getTokenInfo(tokenId: string) {
-        if(_network === bsv.Networks.mainnet) {
+        if (_network === bsv.Networks.mainnet) {
             const info = await fetch(
                 `https://inscribe-api.scrypt.io/bsv20v2/origins/${_tokenId}`
-              )
-              .then((r) => {
-                  if(r.status === 200) {
-                      return r.json()
-                  } 
-                  return null;
-              })
-              .catch((e) => {
-                console.error("get inscriptions by tokenid failed!");
-                return null;
-              });
-  
+            )
+                .then((r) => {
+                    if (r.status === 200) {
+                        return r.json()
+                    }
+                    return null;
+                })
+                .catch((e) => {
+                    console.error("get inscriptions by tokenid failed!");
+                    return null;
+                });
+
             if (info === null) {
-              setHelperText("No token found!")
-              clearTokenId()
-              return null;
+                setHelperText("No token found!")
+                clearTokenId()
+                return null;
             }
 
-            if(info.code !== 0) {
-              setHelperText(info.message || "Unknow error!")
-              clearTokenId()
-              return null;
+            if (info.code !== 0) {
+                setHelperText(info.message || "Unknow error!")
+                clearTokenId()
+                return null;
             }
 
             return info;
         } else {
             const info = await fetch(
                 `https://testnet.ordinals.gorillapool.io/api/inscriptions/${_tokenId}/latest?script=true`
-              )
-              .then((r) => {
-                  if(r.status === 200) {
-                      return r.json()
-                  } 
-                  return null;
-              })
-              .catch((e) => {
-                console.error("get inscriptions by tokenid failed!");
-                return null;
-              });
-  
+            )
+                .then((r) => {
+                    if (r.status === 200) {
+                        return r.json()
+                    }
+                    return null;
+                })
+                .catch((e) => {
+                    console.error("get inscriptions by tokenid failed!");
+                    return null;
+                });
+
             if (info === null) {
-              setHelperText("No token found!")
-              clearTokenId()
-              return null;
+                setHelperText("No token found!")
+                clearTokenId()
+                return null;
             }
-  
-  
-  
+
+
+
             const script = bsv.Script.fromHex(Buffer.from(info.script, "base64").toString("hex"));
-  
-  
-            if(Ordinal.isOrdinalP2PKHV2(script)) {
-              setHelperText("Mint out, no available token!")
-              clearTokenId();
-              return null;
+
+
+            if (Ordinal.isOrdinalP2PKHV2(script)) {
+                setHelperText("Mint out, no available token!")
+                clearTokenId();
+                return null;
             }
-  
+
             const { amt, sym, icon } = info.origin?.data?.insc?.json || {};
 
             return {
@@ -291,71 +291,71 @@ function BSV20v2(props) {
 
         if (_tokenId && isBSV20v2(_tokenId)) {
             try {
-              setTokenIdStatus("invalid")
-              setHelperText(undefined)
-    
-              
-              const info = await getTokenInfo(_tokenId);
-              
-              const utxo = info.utxo;
-    
-              const script = bsv.Script.fromHex(utxo.script);
-    
-              if(Ordinal.isOrdinalP2PKHV2(script)) {
-                setHelperText("Mint out, no available token!")
-                clearTokenId();
-                return;
-              }
-    
-              const { max_supply, icon} = info || {};
-    
-              const artifact = await fetchArtifact(BigInt(max_supply || 21000000));
-              BSV20Mint.loadArtifact(artifact)
-    
-              const instance = BSV20Mint.fromUTXO({
-                txId: utxo.txid,
-                outputIndex: utxo.vout,
-                script: utxo.script,
-                satoshis: utxo.satoshis,
-              });
-    
-              setTokenInfo(fromByteString(instance.sym), instance.max, instance.dec, instance.lim, instance.supply, icon);
-              setHelperText(undefined)
-              if(_repeat) {
-                instance.bindTxBuilder('mint', BSV20Mint.mintTxBuilder)
-    
-                await instance.connect(new TestWallet(bsv.PrivateKey.fromRandom(bsv.Networks.testnet), 
-                    new DummyProvider()))
-    
-                
-                const {tx} = await instance.methods.mint(
-                    Addr(_ordiAddress!.toByteString()),
-                    instance.lim,
-                    {
-                        partiallySigned: true
-                    } as MethodCallOptions<BSV20Mint>
-                )
-    
-                const mintFee = tx.getFee() + 2;
+                setTokenIdStatus("invalid")
+                setHelperText(undefined)
 
-    
-                setMintFee(mintFee);
-    
-                setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], mintFee, Number(_repeat)));
-              }
-    
+
+                const info = await getTokenInfo(_tokenId);
+
+                const utxo = info.utxo;
+
+                const script = bsv.Script.fromHex(utxo.script);
+
+                if (Ordinal.isOrdinalP2PKHV2(script)) {
+                    setHelperText("Mint out, no available token!")
+                    clearTokenId();
+                    return;
+                }
+
+                const { max_supply, icon } = info || {};
+
+                const artifact = await fetchArtifact(BigInt(max_supply || 21000000));
+                BSV20Mint.loadArtifact(artifact)
+
+                const instance = BSV20Mint.fromUTXO({
+                    txId: utxo.txid,
+                    outputIndex: utxo.vout,
+                    script: utxo.script,
+                    satoshis: utxo.satoshis,
+                });
+
+                setTokenInfo(fromByteString(instance.sym), instance.max, instance.dec, instance.lim, instance.supply, icon);
+                setHelperText(undefined)
+                if (_repeat) {
+                    instance.bindTxBuilder('mint', BSV20Mint.mintTxBuilder)
+
+                    await instance.connect(new TestWallet(bsv.PrivateKey.fromRandom(bsv.Networks.testnet),
+                        new DummyProvider()))
+
+
+                    const { tx } = await instance.methods.mint(
+                        Addr(_ordiAddress!.toByteString()),
+                        instance.lim,
+                        {
+                            partiallySigned: true
+                        } as MethodCallOptions<BSV20Mint>
+                    )
+
+                    const mintFee = tx.getFee() + 2;
+
+
+                    setMintFee(mintFee);
+
+                    setCost(calcCost([dummyUTXO(_ordiAddress!, Number.MAX_SAFE_INTEGER)], mintFee, Number(_repeat)));
+                }
+
             } catch (e) {
                 setHelperText((e as unknown as any).message || "Unknow error")
                 console.error('mintTokenIdOnBlur error:', e)
             }
-          } else {
-            if(_tokenId && !isBSV20v2(_tokenId)) {
+        } else {
+            if (_tokenId && !isBSV20v2(_tokenId)) {
                 setHelperText("Invalid Token Id")
             }
-    
+
             clearTokenId()
-          }
-      
+        }
+
     };
 
     const decimalOnChange = (e) => {
@@ -375,7 +375,7 @@ function BSV20v2(props) {
     }
 
     const validDeployInput = () => {
-        return _isLoading === false &&  _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
+        return _isLoading === false && _symbol !== undefined && _max !== undefined && _decimal !== undefined && _lim !== undefined
     }
 
     const [_result, setResult] = useState<string | undefined>(undefined)
@@ -384,12 +384,14 @@ function BSV20v2(props) {
         try {
             setLoading(true)
             const signer = _signer as PandaSigner
+            await signer.requestAuth();
+
             const symbol = toByteString(_symbol!, true)
             const total = _max! * BigInt(Math.pow(10, Number(_decimal!)));
             const artifact = await fetchArtifact(total);
 
             BSV20Mint.loadArtifact(artifact)
-   
+
             const instance = new BSV20Mint(toByteString(''), symbol, total, _decimal!, _lim!)
             await instance.connect(signer)
 
@@ -420,9 +422,10 @@ function BSV20v2(props) {
         try {
             setLoading(true)
             const signer = _signer as PandaSigner
+            await signer.requestAuth();
 
             const utxo = await OneSatApis.fetchLatestByOrigin(_tokenId!, _network!);
-            if(!utxo) {
+            if (!utxo) {
                 setResult(`No UTXO found for token id!`)
                 return;
             }
@@ -433,7 +436,7 @@ function BSV20v2(props) {
 
             instance.bindTxBuilder('mint', BSV20Mint.mintTxBuilder)
 
-            const {tx} = await instance.methods.mint(
+            const { tx } = await instance.methods.mint(
                 Addr(_ordiAddress!.toByteString()),
                 instance.lim,
                 {} as MethodCallOptions<BSV20Mint>
@@ -461,15 +464,15 @@ function BSV20v2(props) {
                 setLoading(true);
                 await _signer.connect()
                 const utxos = await _signer.provider!.listUnspent(_payAddress!);
-                const tx = buildTx(utxos, _payAddress!, _mintFee,  _feePerKb, Number(_repeat!));
+                const tx = buildTx(utxos, _payAddress!, _mintFee, _feePerKb, Number(_repeat!));
                 const signedTx = await _signer.signTransaction(tx);
                 const response = await fetch(`https://inscribe-api.scrypt.io/bsv20v2/batch_mint`, {
                     method: 'POST',
-                    mode: "cors", 
-                    cache: "no-cache", 
-                    credentials: "same-origin", 
+                    mode: "cors",
+                    cache: "no-cache",
+                    credentials: "same-origin",
                     headers: {
-                      "Content-Type": "application/json",
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         raw: signedTx.toString(),
@@ -478,29 +481,29 @@ function BSV20v2(props) {
                         repeat: Number(_repeat!),
                         addr: _ordiAddress!.toString(),
                     })
-                  })
-                  .then((r) => r.json());
-          
+                })
+                    .then((r) => r.json());
+
                 const historyTxs = JSON.parse(localStorage.getItem("history") || "[]");
-          
+
                 historyTxs.push({
-                  tx: tx.id,
-                  time: new Date().getTime(),
+                    tx: tx.id,
+                    time: new Date().getTime(),
                 });
-          
+
                 localStorage.setItem("history_v2", JSON.stringify(historyTxs));
-          
+
                 setResult(
-                  response?.code === 0
-                    ? `Order Tx: ${tx.id}`
-                    : `Error ${response.code}: ${response.message}`
+                    response?.code === 0
+                        ? `Order Tx: ${tx.id}`
+                        : `Error ${response.code}: ${response.message}`
                 );
-              } catch (e: any) {
+            } catch (e: any) {
                 console.error("error", e);
                 setResult(`${e.message ?? e}`);
-              } finally {
+            } finally {
                 setLoading(false);
-              }
+            }
 
 
         } catch (e: any) {
@@ -526,47 +529,47 @@ function BSV20v2(props) {
 
             <Box sx={{ my: 2 }}>
                 <FormControl>
-                <FormLabel id="radio-buttons-mint-deploy-label" sx={{ mb: 1 }}>
-                    Mint or Deploy
-                </FormLabel>
-                <RadioGroup
-                    aria-labelledby="radio-buttons-mint-deploy-label"
-                    defaultValue="mint"
-                    name="radio-buttons-mint-deploy"
-                    onChange={mintOrDeployOnChange}
-                >
-                    <FormControlLabel
-                    value="mint"
-                    control={<Radio />}
-                    label="Mint Existing Token"
-                    />
-                    <FormControlLabel
-                    value="deploy"
-                    control={<Radio />}
-                    label="Deploy New Token"
-                    />
-                </RadioGroup>
+                    <FormLabel id="radio-buttons-mint-deploy-label" sx={{ mb: 1 }}>
+                        Mint or Deploy
+                    </FormLabel>
+                    <RadioGroup
+                        aria-labelledby="radio-buttons-mint-deploy-label"
+                        defaultValue="mint"
+                        name="radio-buttons-mint-deploy"
+                        onChange={mintOrDeployOnChange}
+                    >
+                        <FormControlLabel
+                            value="mint"
+                            control={<Radio />}
+                            label="Mint Existing Token"
+                        />
+                        <FormControlLabel
+                            value="deploy"
+                            control={<Radio />}
+                            label="Deploy New Token"
+                        />
+                    </RadioGroup>
                 </FormControl>
             </Box>
-            {_mintOrDeploy === "deploy" &&(
+            {_mintOrDeploy === "deploy" && (
                 <Box sx={{ mt: 3 }}>
                     <TextField label="Symbol" variant="outlined" fullWidth required onChange={symbolOnChange} />
 
-                    <TextField label="Max Supply" 
-                    type="number" 
-                    variant="outlined"
-                    placeholder="21000000"
-                    fullWidth 
-                    required 
-                    sx={{ mt: 2 }} onChange={maxOnChange} />
+                    <TextField label="Max Supply"
+                        type="number"
+                        variant="outlined"
+                        placeholder="21000000"
+                        fullWidth
+                        required
+                        sx={{ mt: 2 }} onChange={maxOnChange} />
                     <TextField
-                    label="Limit Per Mint"
-                    sx={{ mt: 2 }}
-                    required
-                    variant="outlined"
-                    placeholder="1000"
-                    fullWidth
-                    onChange={limOnChange}
+                        label="Limit Per Mint"
+                        sx={{ mt: 2 }}
+                        required
+                        variant="outlined"
+                        placeholder="1000"
+                        fullWidth
+                        onChange={limOnChange}
                     />
                     <TextField label="Decimal Precision" type="number" placeholder="0" InputProps={{ inputProps: { min: 0, max: 18 } }} variant="outlined" fullWidth required sx={{ mt: 2 }} onChange={decimalOnChange} />
                     <TextField label="Icon" variant="outlined" placeholder="1Sat Ordinals NFT origin" fullWidth sx={{ mt: 2 }} onChange={iconOnChange} />
@@ -579,96 +582,96 @@ function BSV20v2(props) {
             {_mintOrDeploy === "mint" && (
                 <Box sx={{ mt: 3 }}>
                     <TextField label="TokenId" variant="outlined" placeholder="TokenId" fullWidth
-                    required
-                    error={typeof _helperText === 'string'}
-                    helperText={_helperText}
-                    onChange={tokenIdOnChange}
-                    onBlur={mintTokenIdOnBlur} />
+                        required
+                        error={typeof _helperText === 'string'}
+                        helperText={_helperText}
+                        onChange={tokenIdOnChange}
+                        onBlur={mintTokenIdOnBlur} />
 
                     {_tokenIdStatus === 'valid' && (
-                            <Box>
-                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                        <Box>
+                            <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
                                 Symbol: {_symbol?.toString() || "Null"}
-                                </Typography>
-                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
                                 Max Supply: {_max?.toString()}
-                                </Typography>
-                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
                                 Available Supply: {_available?.toString() || "0"}
-                                </Typography>
-                                <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 2, ml: 2 }}>
                                 Limit Per Mint: {_lim?.toString()}
-                                </Typography>
-                                <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>
                                 Decimal Precision: {_decimal?.toString()}
-                                </Typography>
-                                {
-                                    _icon &&(
+                            </Typography>
+                            {
+                                _icon && (
 
-                                        <Box sx={{display: 'flex', flexDirection: 'row'}}>
-                                            <Box>
-                                                <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>
-                                                Icon: 
-                                                </Typography>
-                                            </Box>
-                                            <Avatar alt="Icon" sx={{marginTop: 1, marginLeft: 0.6}} src={
-                                                `https://ordinals.gorillapool.io/content/${_icon}?fuzzy=false`
-                                            } />
-
+                                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                                        <Box>
+                                            <Typography variant="body1" sx={{ mt: 2, ml: 2, mb: 1 }}>
+                                                Icon:
+                                            </Typography>
                                         </Box>
+                                        <Avatar alt="Icon" sx={{ marginTop: 1, marginLeft: 0.6 }} src={
+                                            `https://ordinals.gorillapool.io/content/${_icon}?fuzzy=false`
+                                        } />
+
+                                    </Box>
 
 
-                                    )
-                                }
-                            </Box>
+                                )
+                            }
+                        </Box>
                     )}
 
                 </Box>
             )}
 
-            { _mintOrDeploy === "mint" && _network === bsv.Networks.testnet && (
+            {_mintOrDeploy === "mint" && _network === bsv.Networks.testnet && (
                 <Button variant="contained" color="primary" sx={{ mt: 2 }} disabled={!connected() || !validMintInput()} onClick={mint}>
-                        Mint It!
+                    Mint It!
                 </Button>
             )}
 
-            { _mintOrDeploy === "mint"  && (
-                    <Box sx={{ mt: 2 }}>
+            {_mintOrDeploy === "mint" && (
+                <Box sx={{ mt: 2 }}>
                     <TextField
-                      label="Repeat (Max: 20000, Fee: 100 sats/mint)"
-                      defaultValue={1}
-                      variant="outlined"
-                      required
-                      fullWidth
-                      onChange={repeatOnChange}
-                      disabled={!validMintInput()}
+                        label="Repeat (Max: 20000, Fee: 100 sats/mint)"
+                        defaultValue={1}
+                        variant="outlined"
+                        required
+                        fullWidth
+                        onChange={repeatOnChange}
+                        disabled={!validMintInput()}
                     />
-        
+
                     <Box sx={{ mt: 2, display: "flex", flexDirection: "row" }}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        sx={{ mt: 2 }}
-                        disabled={!connected() || !validMintInputRepeat()}
-                        onClick={fire}
-                      >
-                        Fire!
-                      </Button>
-                      {_cost > 0 && validMintInputRepeat() ? (
-                        <Typography color="primary" sx={{ mt: 3, ml: 3 }}>
-                          {_price > 0
-                            ? `Total Cost: ${_cost} sats, $${(
-                                (_price * _cost) /
-                                100000000
-                              ).toFixed(5)}USD `
-                            : `Total Cost: ${_cost} sats`}
-                        </Typography>
-                      ) : (
-                        <></>
-                      )}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            sx={{ mt: 2 }}
+                            disabled={!connected() || !validMintInputRepeat()}
+                            onClick={fire}
+                        >
+                            Fire!
+                        </Button>
+                        {_cost > 0 && validMintInputRepeat() ? (
+                            <Typography color="primary" sx={{ mt: 3, ml: 3 }}>
+                                {_price > 0
+                                    ? `Total Cost: ${_cost} sats, $${(
+                                        (_price * _cost) /
+                                        100000000
+                                    ).toFixed(5)}USD `
+                                    : `Total Cost: ${_cost} sats`}
+                            </Typography>
+                        ) : (
+                            <></>
+                        )}
                     </Box>
-                  </Box>
-                )
+                </Box>
+            )
             }
 
             {
@@ -676,8 +679,8 @@ function BSV20v2(props) {
                     ? ''
                     : (<Box sx={{ mt: 3 }}><Typography variant="body1">{_result}</Typography></Box>)
             }
-                        <Box>
-                <Typography sx={{marginTop: 10}} variant="body1" align="center">
+            <Box>
+                <Typography sx={{ marginTop: 10 }} variant="body1" align="center">
                     <a style={{ color: "#FE9C2F" }} href="https://docs.1satordinals.com/bsv20#new-in-v2-tickerless-mode" target="_blank" rel="noreferrer">what's new in v2</a>
                 </Typography>
             </Box>

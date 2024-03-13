@@ -25,7 +25,9 @@ function OrdinalImage(props) {
 
   const inscribe = async () => {
     try {
-      const signer = _signer as PandaSigner
+      const signer = _signer as PandaSigner;
+      await signer.requestAuth()
+
       const instance = new OrdiNFTP2PKH(Addr(_ordiAddress!.toByteString()))
       await instance.connect(signer)
 
